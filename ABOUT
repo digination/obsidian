@@ -1,0 +1,15 @@
+About Obsidian
+==============
+
+Obsidian is a Peer To Peer software that enables mass mirroring, ensuring fully automatic and highly reactive data replication between its Nodes. 
+Designed to share great amounts of files across TCP/IP Networks, Obsidian is using DEXP (Documents Exchange Protocol), a protocol specifically designed to exchange documents between multiple peers, enabling knowledge to spread as fast as possible across the net. 
+
+Technical Principle
+===================
+
+Obsidian listens to specific filesystem events then propagates its 
+modifications by pushing them across All its peers. When a dexp reposiroy is 
+modified, its modification get replicated almost instantly (depending of 
+modifications amount and bandwith between the different peers).
+
+Note: For now Obsidian is an experimental Software, use it at your own risks.

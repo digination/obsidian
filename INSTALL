@@ -1,0 +1,20 @@
+Installing Obsidian
+===================
+
+Software dependancies:
+
+libssl-dev
+inotify ( That's why dexp is for now Linux Only ! )
+libxml2
+
+
+Build Procedure:
+================
+
+In order to build Obsidian, you will need the CMake tool to create the appropriate Makefile. Once in the Obsidian root directory, start the Makefile creation by typing "cmake ."
+
+If the Makefile creation went OK, then just type "make" to start the 
+compilation process. Finally, when the dexp build is finished, type "make install" to copy the necessary files from the build directory to your own system.
+
+That's all :)
+
