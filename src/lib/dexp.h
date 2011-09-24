@@ -10,13 +10,17 @@
 #include "common.h"
 
 
-//Actions
+//Queries
 #define DEXP_GETDOCUMENT "GET_DOCUMENT"
 #define DEXP_GETMETADATA "GET_METADATA"
 #define DEXP_GETINFOS "GET_INFOS\r\n"
 #define DEXP_GETCAPA "GET_CAPA\r\n"
 #define DEXP_GETCATALOG "GET_CATALOG\r\n"
 #define DEXP_ANNOUNCE "ANNOUNCE"
+#define DEXP_PING "PING\r\n"
+
+//Responses
+#define DEXP_PONG "PONG\r\n"
 
 
 //Modes
@@ -51,6 +55,9 @@ int has_document(char*,char**,int);
 int parse_cmd(char*,char**,int) ;
 void *session_thread_serv(void *);
 void *session_thread_cli(void *);
+
+void* keepalive_thread();
+
 int announce(char*);
 int process_announce(int,char*);
 void fetch_doc(int,char*);

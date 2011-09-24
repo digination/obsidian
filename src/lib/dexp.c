@@ -330,15 +330,17 @@ int take_action(int socknum,void* io_buffer) {
        sendDoc(socknum,trim(str0.strlist[1]));
 
     }
+
    
+    else if (strstr( str0.strlist[0] , DEXP_PING ) == str0.strlist[0] ) {
 
+       send(socknum,DEXP_PONG,sizeof(DEXP_PONG),0);
 
+    }
 
 
 
   }
-
-
 
 }
 
@@ -723,6 +725,46 @@ void *session_thread_cli(void * p_input) {
 
 }
 
+
+
+
+void* keepalive_thread() {
+
+
+  extern dexpd_config conf0;
+  int i;
+  char io_buffer[7];
+
+
+  while(1) {
+
+    for(i=0;i<conf0.nb_peers;i++) {
+
+
+       if (conf0.peers[i].mode != DEXPMODE_BUSY) {
+
+         send(conf0.peers[î].socknum,DEXP_PING,sizeof(DEXP_PING));
+
+      }
+
+     //setsockopt SO_KEEPALIVE ??
+     if ( !recv(conf0.peers[i].socknum,io_buffer,sizeof(io_buffer)) ) {
+
+        conf0.peers[i].socknum = -1;
+        pthread_kill(conf0.peers[i].thread);
+        printf("Peer %s dosconnected\n", conf0.peers[i].host);
+
+     }
+
+    }
+
+  }
+
+
+  sleep(conf0.keepalive_timeout);
+
+
+}
 
 
 

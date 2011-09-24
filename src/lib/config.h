@@ -28,7 +28,7 @@ typedef struct dexpd_config {
    char node_name[MAX_OPT_STR_LEN];
    char node_descr[MAX_OPT_STR_LEN*2];
    char node_location[255];
-   int peer_timeout;
+   int keepalive_timeout;
 
    int log_level;
    int log_stdout;

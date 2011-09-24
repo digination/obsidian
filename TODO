@@ -5,7 +5,6 @@ Implement zlib support to enable gziped data transfers between nodes.
 Support of dirtee synchronization instead of single directory
 
 TODO HIGH_PRIO
-Implement Announces Handling Server side
 Implement Locks on sockets/ hashqueues announces flushing
 Implemment logging function
 Modify the send/fetch doc functions regarding header/data receiving

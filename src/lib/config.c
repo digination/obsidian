@@ -116,8 +116,8 @@ int init_config() {
 
         }
 
-        else if (strcmp(opt_name,"peer_timeout") == 0) {
-          conf0.peer_timeout = atoi(opt_value);
+        else if (strcmp(opt_name,"keepalive_timeout") == 0) {
+          conf0.keepalive_timeout = atoi(opt_value);
         }
 
 
