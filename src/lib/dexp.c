@@ -439,40 +439,64 @@ hash_queue* register_hashes(char *cat_str,hash_queue* hq0,int* nb_hq) {
 
 
 
-void fetch_doc(int socknum,char* hash) {
+int fetch_doc(int socknum,char* hash) {
 
    extern dexpd_config conf0;
 
    FILE* fh;
    int mode = 0;
-   int i,k;
    char doc_query[80];
    char io_buffer[4096];   
+   void* file_part;
+   char *head_end_ptr;
 
    int xfr_len;
    int len;
+   int i;
    char file_path[6000];
    char file_dest[6000];
 
    int file_len;
-
+   int header_len = 0;
+   int fpart_len = 0;
 
    stringlist doc_params;
 
    strcpy(doc_query,"GET_DOCUMENT ");
    strcat(doc_query,hash);
    strcat(doc_query,"\r\n");
-   printf("QUERY: %s",doc_query);
+   //printf("QUERY: %s",doc_query);
 
    send(socknum,doc_query,strlen(doc_query),0);
-   setZero(io_buffer);
+   setZeroN(io_buffer,4096);
 
+   file_part = (void*) malloc(4096*sizeof(char));
+   setZeroN((char*)file_part,4096);
 
+   
    if ( (len = recv(socknum,io_buffer,4096 * sizeof(char),0)) > 0 ) {
-      //
-      printf("%s\n",io_buffer);
+     
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
+
+          head_end_ptr = strstr(io_buffer,"\r\n");
+          if (head_end_ptr != NULL) {
+            header_len = (head_end_ptr - io_buffer) + 2;
+            fpart_len = len - header_len;
+          }
+
+         printf("HEADER_LEN:%d | FPART_LEN:%d\n",header_len,fpart_len);
+
+         if (fpart_len> 0) {
+            memcpy(file_part,head_end_ptr+2,sizeof(char) * fpart_len);    
+            for(i=header_len;i<4096;i++) {
+              io_buffer[i] = '\0';
+            }            
+
+         }
+
+         printf("IO_BUFFER: %s\n",io_buffer);
+         
 
          doc_params = explode(io_buffer,' ');
 
@@ -492,13 +516,23 @@ void fetch_doc(int socknum,char* hash) {
          if (!fh) {
 
             fprintf(stderr,"ERROR: CANNOT OPEN %s FOR WRITING\n",file_path);
+            return -1;
 
          }
 
          file_len = atoi(doc_params.strlist[2]);
          xfr_len = 0;
 
+         if (fpart_len > 0) {
+
+             fwrite(file_part,1,fpart_len * sizeof(char),fh);
+             xfr_len = fpart_len;
+
+         }
+
+         setZeroN(io_buffer,4096);
          while(xfr_len < file_len) {
+
 
             if ( (len = recv(socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
 
@@ -507,7 +541,7 @@ void fetch_doc(int socknum,char* hash) {
 
             }
 
-            setZero(io_buffer);
+            setZeroN(io_buffer,4096);
 
          }
 
@@ -536,90 +570,11 @@ void fetch_doc(int socknum,char* hash) {
 
 void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
 
-   extern dexpd_config conf0;
-
-   FILE* fh;
-   int mode = 0;
-   int i,k;
-   char doc_query[80];
-   char io_buffer[4096];   
-
-   int xfr_len;
-   int len;
-   char file_path[6000];
-   char file_dest[6000];
-
-   int file_len;
-
-   stringlist doc_params;
-
+   int i;
    
    for (i=0;i<*nb_hq;i++) {
 
-     strcpy(doc_query,"GET_DOCUMENT ");
-     strcat(doc_query,hq0[i].hash);
-     strcat(doc_query,"\r\n");
-
-     printf("QUERY: %s",doc_query);
-
-     send(socknum,doc_query,strlen(doc_query),0);
-     setZero(io_buffer);
-
-      if ( (len = recv(socknum,io_buffer,4096 * sizeof(char),0)) > 0 ) {
-
-      printf("%s\n",io_buffer);
-
-      if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
-
-         doc_params = explode(io_buffer,' ');
-
-         setZero(file_path);
-         strncpy(file_path,conf0.tmp_dir,sizeof(file_path));
-         strncat(file_path,"/",sizeof(file_path) - strlen(file_path));
-         strncat(file_path,doc_params.strlist[1],sizeof(file_path) - strlen(file_path));        
-
-   
-         setZero(file_dest);
-         strncpy(file_dest,conf0.data_dir,sizeof(file_dest));
-         strncat(file_dest,"/",sizeof(file_dest) - strlen(file_dest));
-         strncat(file_dest,doc_params.strlist[1],sizeof(file_dest) - strlen(file_dest));
-
-
-
-         fh = fopen(file_path,"wb");
-
-         if (!fh) {
-
-            fprintf(stderr,"ERROR: CANNOT OPEN %s FOR WRITING\n",file_path);
-
-         }
-
-         file_len = atoi(doc_params.strlist[2]);
-         xfr_len = 0;
-
-         while(xfr_len < file_len) {
-
-            if ( (len = recv(socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
-
-              fwrite(io_buffer,1,len * sizeof(char),fh);
-              xfr_len +=len;
-
-            }
-
-            setZero(io_buffer);
-
-         }
-
-
-         printf("Notice: file %s fetched succesfully\n",doc_params.strlist[1]);
-         fclose(fh);
-         rename(file_path,file_dest);
-      
-        }
-  
-      }
-
-
+      fetch_doc(socknum,hq0[i].hash);
    }
 
 }

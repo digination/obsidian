@@ -61,7 +61,7 @@ void* keepalive_thread();
 
 int announce(char*);
 int process_announce(int,char*);
-void fetch_doc(int,char*);
+int fetch_doc(int,char*);
 
 
 #endif

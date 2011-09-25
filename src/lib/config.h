@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include "utils.h"
 #include "peer.h"
+#include <stdint.h>
 
 
 
@@ -30,9 +31,15 @@ typedef struct dexpd_config {
    char node_location[255];
    int keepalive_timeout;
 
-   int log_level;
-   int log_stdout;
+   uint8_t log_level;
+   uint8_t log_stdout;
    char log_file[MAX_OPT_STR_LEN];
+   
+   uint8_t use_ipv6;
+   char ipv6_listening_addr[MAX_OPT_STR_LEN];   
+
+
+
 
    
 } dexpd_config;

@@ -137,7 +137,16 @@ int init_config() {
            memcpy(conf0.node_location,opt_value,255 * sizeof(char));           
         }
 
-             
+
+         else if (strcmp(opt_name,"use_ipv6") == 0 ) {
+            if (strcmp(opt_value,"true") == 0 ) conf0.use_ipv6 = 1;
+        }
+
+        else if (strcmp(opt_name,"ipv6_listening_addr") == 0) {
+           memcpy(conf0.ipv6_listening_addr,opt_value,MAX_OPT_STR_LEN * sizeof(char));
+         }
+
+            
      }
 
    } 
