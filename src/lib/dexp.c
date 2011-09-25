@@ -743,7 +743,7 @@ void* keepalive_thread() {
 
        if (conf0.peers[i].mode != DEXPMODE_BUSY) {
 
-         send(conf0.peers[î].socknum,DEXP_PING,sizeof(DEXP_PING));
+         send(conf0.peers[i].socknum,DEXP_PING,sizeof(DEXP_PING));
 
       }
 

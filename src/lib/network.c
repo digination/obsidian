@@ -42,6 +42,69 @@ int create_socket(char *addr,int port) {
 }
 
 
+
+int create_socket_v6(char *addr,int port) {
+
+    int sock;
+    //struct sockaddr_in6 sin;
+    int val=1;
+    int i;
+    uint8_t ip6addr[16];
+    
+   struct sockaddr_storage ss;
+   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &ss;
+
+
+
+    if((sock=socket(AF_INET6,SOCK_STREAM,0))<0) {
+
+       fprintf(stderr,"ERROR: CANNOT CREATE SOCKET\n");
+       exit(1);
+    }
+  
+    //memset(&sin,0,sizeof(sin));
+
+    if (strcmp(addr,"::") == 0) {
+
+       for (i=0;i<16;i++) {
+          sin6->sin6_addr.s6_addr[i] = 0x00;
+       }
+       
+    }
+
+    else {
+
+        inet_pton(AF_INET6,addr,ip6addr);
+        memcpy(sin6->sin6_addr.s6_addr,ip6addr,16*sizeof(uint8_t));
+
+    }
+
+
+    sin6->sin6_family=AF_INET6;
+    sin6->sin6_port=htons(port);
+    setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,
+      &val,sizeof(val));
+    
+    if(bind(sock,(struct sockaddr *)sin6,sizeof(ss))<0) {
+
+        fprintf(stderr,"ERROR: CANNOT BIND SOCKET ON %s:%d\n",addr,port);
+
+    }
+
+    listen(sock,5);  
+
+	return sock;
+
+}
+
+
+
+
+
+
+
+
+
 int pconnect(char* host,int portno) {
 
 
