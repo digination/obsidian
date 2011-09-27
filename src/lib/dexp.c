@@ -163,6 +163,7 @@ int sendDoc(int socknum,char *hash) {
    char fl_str[200];
    int i,j;
    int found = 0;
+   uint32_t dochead_len;
 
    extern catalog* cat0;
    extern dexpd_config conf0;
@@ -218,10 +219,17 @@ int sendDoc(int socknum,char *hash) {
    strncat(send_buffer,fl_str,sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,"\r\n",sizeof(send_buffer) - strlen(send_buffer));
 
+
+   dochead_len = strlen(send_buffer);
+
+   send(socknum,dochead_len,sizeof(dochead_len),0);
    send(socknum,send_buffer,strlen(send_buffer),0);
 
+
+   
+
    //DIRTY HACK TO AVOID PACKET REFRAGMENTATION;
-   sleep(1);
+   //sleep(1);
 
    while( ( i = fread( file_buffer, 1, sizeof( file_buffer ), fh ) ) > 0 ) {
 
@@ -454,6 +462,7 @@ void fetch_doc(int socknum,char* hash) {
    char file_dest[6000];
 
    int file_len;
+   uint32_t dochead_len;
 
    stringlist doc_params;
 
@@ -465,7 +474,10 @@ void fetch_doc(int socknum,char* hash) {
    send(socknum,doc_query,strlen(doc_query),0);
    setZero(io_buffer);
 
-   if ( (len = recv(socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
+
+   if ( (len = recv(socknum,dochead_len,sizeof(uint32_t),0)) > 0 ) {
+
+    if ( (len = recv(socknum,io_buffer,dochead_len * sizeof(char),0)) > 0 ) {
       //
       printf("%s\n",io_buffer);
 
@@ -514,6 +526,8 @@ void fetch_doc(int socknum,char* hash) {
          rename(file_path,file_dest);
         
      
+       }
+
      }
 
    }
@@ -546,6 +560,8 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
    char file_dest[6000];
 
    int file_len;
+   uint32_t dochead_len;
+
 
    stringlist doc_params;
 
@@ -561,8 +577,11 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
      send(socknum,doc_query,strlen(doc_query),0);
      setZero(io_buffer);
 
-     if ( (len = recv(socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
+     if ( (len = recv(socknum,dochead_len,sizeof(uint32_t),0)) > 0 ) {
       //
+
+      if ( (len = recv(socknum,io_buffer,dochead_len * sizeof(char),0)) > 0 ) {
+
       printf("%s\n",io_buffer);
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
@@ -610,7 +629,9 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
          printf("Notice: file %s fetched succesfully\n",doc_params.strlist[1]);
          fclose(fh);
          rename(file_path,file_dest);
-        
+      
+        }
+  
       }
 
 

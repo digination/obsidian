@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "config.h"
 #include "common.h"
+#include <stdint.h>
 
 
 //Queries
