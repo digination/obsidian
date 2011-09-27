@@ -220,7 +220,18 @@ int main(int argc, char** argv) {
    socklen_t addr_len = sizeof(peer_addr);
   
 
-   printf ("Obsidian 0.1 -- Clement Game 2011\n");
+   printf ("\n");
+
+   printf ("        /\\\n");
+   printf ("       /01\\\n");
+   printf ("      /0011\\\n");
+   printf ("     /000111\\     [[ Obsidian 0.1 == Clement Game 2011 ]]\n");
+   printf ("    /00001111\\\n");
+   printf ("   /0000011111\\\n");
+   printf ("   \\0000000000/\n\n");
+
+
+
    init_config();
 
    printf("Loading catalog from %s...\n",conf0.data_dir);

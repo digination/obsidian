@@ -47,7 +47,7 @@ int parse_peers(char *peers_str) {
    free(peersarray);
 
    //debug
-   for (i=0;i<nb_peers;i++) printf("%s:%d\n",conf0.peers[i].host,conf0.peers[i].port);
+   //for (i=0;i<nb_peers;i++) printf("%s:%d\n",conf0.peers[i].host,conf0.peers[i].port);
 
    return nb_peers;
 
