@@ -212,9 +212,9 @@ int sendDoc(int socknum,char *hash) {
    sprintf(fl_str,"%ld",file_length);
    
    setZero(send_buffer);
-   strncpy(send_buffer,"DOCUMENT ",sizeof(send_buffer));
+   strncpy(send_buffer,"DOCUMENT:",sizeof(send_buffer));
    strncat(send_buffer,cat0[i].filename,sizeof(send_buffer) - strlen(send_buffer));
-   strncat(send_buffer," ",sizeof(send_buffer) - strlen(send_buffer));
+   strncat(send_buffer,":",sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,fl_str,sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,"\r\n",sizeof(send_buffer) - strlen(send_buffer));
 
@@ -498,7 +498,7 @@ int fetch_doc(int socknum,char* hash) {
          printf("IO_BUFFER: %s\n",io_buffer);
          
 
-         doc_params = explode(io_buffer,' ');
+         doc_params = explode(io_buffer,':');
 
          setZero(file_path);
          strncpy(file_path,conf0.tmp_dir,sizeof(file_path));
