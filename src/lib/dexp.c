@@ -163,7 +163,6 @@ int sendDoc(int socknum,char *hash) {
    char fl_str[200];
    int i,j;
    int found = 0;
-   uint32_t dochead_len;
 
    extern catalog* cat0;
    extern dexpd_config conf0;
@@ -219,14 +218,8 @@ int sendDoc(int socknum,char *hash) {
    strncat(send_buffer,fl_str,sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,"\r\n",sizeof(send_buffer) - strlen(send_buffer));
 
-
-   dochead_len = strlen(send_buffer);
-
-   send(socknum,dochead_len,sizeof(dochead_len),0);
    send(socknum,send_buffer,strlen(send_buffer),0);
 
-
-   
 
    //DIRTY HACK TO AVOID PACKET REFRAGMENTATION;
    //sleep(1);
@@ -462,7 +455,7 @@ void fetch_doc(int socknum,char* hash) {
    char file_dest[6000];
 
    int file_len;
-   uint32_t dochead_len;
+
 
    stringlist doc_params;
 
@@ -475,9 +468,7 @@ void fetch_doc(int socknum,char* hash) {
    setZero(io_buffer);
 
 
-   if ( (len = recv(socknum,dochead_len,sizeof(uint32_t),0)) > 0 ) {
-
-    if ( (len = recv(socknum,io_buffer,dochead_len * sizeof(char),0)) > 0 ) {
+   if ( (len = recv(socknum,io_buffer,4096 * sizeof(char),0)) > 0 ) {
       //
       printf("%s\n",io_buffer);
 
@@ -528,8 +519,7 @@ void fetch_doc(int socknum,char* hash) {
      
        }
 
-     }
-
+    
    }
 
 }
@@ -560,8 +550,6 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
    char file_dest[6000];
 
    int file_len;
-   uint32_t dochead_len;
-
 
    stringlist doc_params;
 
@@ -577,10 +565,7 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
      send(socknum,doc_query,strlen(doc_query),0);
      setZero(io_buffer);
 
-     if ( (len = recv(socknum,dochead_len,sizeof(uint32_t),0)) > 0 ) {
-      //
-
-      if ( (len = recv(socknum,io_buffer,dochead_len * sizeof(char),0)) > 0 ) {
+      if ( (len = recv(socknum,io_buffer,4096 * sizeof(char),0)) > 0 ) {
 
       printf("%s\n",io_buffer);
 
@@ -634,8 +619,6 @@ void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
   
       }
 
-
-     }
 
    }
 
