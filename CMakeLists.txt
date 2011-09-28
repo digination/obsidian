@@ -19,6 +19,8 @@ add_executable(
         src/lib/utils.c
         src/lib/utils.h
         src/lib/common.h
+        src/lib/crypto.h
+        src/lib/crypto.c
 )
 
 
