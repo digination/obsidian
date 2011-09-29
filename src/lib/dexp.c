@@ -287,7 +287,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     if (strstr( str0.strlist[0] , DEXP_GETINFOS ) == str0.strlist[0] ) {
 
-       sendInfos(socknum);
+       sendInfos(cpeer);
 
     }  
 
