@@ -124,7 +124,7 @@ int announce(char *hash) {
      
       if (conf0.peers[i].socknum > 0 && conf0.peers[i].mode != DEXPMODE_BUSY ) {
 
-         send(conf0.peers[i].socknum,io_buffer,strlen(io_buffer),0);
+         dexp_send(conf0.peers[i],io_buffer,strlen(io_buffer));
 
       }
 
@@ -152,7 +152,7 @@ int announce(char *hash) {
 
 
 
-int sendDoc(int socknum,char *hash) {
+int sendDoc(peer* cpeer,char *hash) {
 
    FILE *fh;
    char file_buffer[1000];
@@ -181,7 +181,7 @@ int sendDoc(int socknum,char *hash) {
    if (!found) {
 
      strcat(send_buffer,"400 FILE NOT FOUND\r\n");
-     send(socknum,send_buffer,strlen(send_buffer)+1,0);
+     dexp_send(cpeer,send_buffer,strlen(send_buffer)+1);
      return -1; 
 
    }
@@ -199,8 +199,8 @@ int sendDoc(int socknum,char *hash) {
    if (!fh) {
 
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
-     send(socknum,send_buffer,strlen(send_buffer),0);
-     //send(socknum,file_path,strlen(file_path),0);
+     dexp_send(cpeer,send_buffer,strlen(send_buffer));
+     //dexp_send(cpeer,file_path,strlen(file_path));
      return -2;
 
    }
@@ -217,7 +217,7 @@ int sendDoc(int socknum,char *hash) {
    strncat(send_buffer,fl_str,sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,"\r\n",sizeof(send_buffer) - strlen(send_buffer));
 
-   send(socknum,send_buffer,strlen(send_buffer),0);
+   dexp_send(cpeer,send_buffer,strlen(send_buffer));
 
 
    //DIRTY HACK TO AVOID PACKET REFRAGMENTATION;
@@ -225,7 +225,7 @@ int sendDoc(int socknum,char *hash) {
 
    while( ( i = fread( file_buffer, 1, sizeof( file_buffer ), fh ) ) > 0 ) {
 
-      send(socknum,file_buffer,i,0);
+      dexp_send(cpeer,file_buffer,i);
 
       for (j = 0;j<1000;j++) file_buffer[j] = NUL;
 
@@ -308,7 +308,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
         if (str0.nb_strings < 2) {
 
-            send(socknum,"300 MISSING ARGUMENT\r\n",22,0);
+            dexp_send(cpeer,"300 MISSING ARGUMENT\r\n",22);
             return -2;
        } 
 
@@ -323,18 +323,18 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
        if (str0.nb_strings < 2) {
 
-            send(socknum,"300 MISSING ARGUMENT\r\n",22,0);
+            dexp_send(cpeer,"300 MISSING ARGUMENT\r\n",22);
             return -2;
        } 
 
-       sendDoc(socknum,trim(str0.strlist[1]));
+       sendDoc(cpeer,trim(str0.strlist[1]));
 
     }
 
    
     else if (strstr( str0.strlist[0] , DEXP_PING ) == str0.strlist[0] ) {
 
-       send(socknum,DEXP_PONG,sizeof(DEXP_PONG),0);
+       dexp_send(cpeer,DEXP_PONG,sizeof(DEXP_PONG),0);
 
     }
 
@@ -624,7 +624,7 @@ void *session_thread_cli(void * p_input) {
   while(1) {
 
 
-     if ( (len = recv(current_peer->socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
+     if ( (len = dexp_recv(current_peer,io_buffer,4096*sizeof(char))) > 0 ) {
 
          switch(mode) {
 
