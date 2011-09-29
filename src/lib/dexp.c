@@ -31,7 +31,7 @@ int parse_cmd(char* rcv,char **hash_array,int nb_hash) {
 
 
 
-int sendInfos (int socknum) {
+int sendInfos (peer* cpeer) {
 
    extern dexpd_config conf0;
     
@@ -46,7 +46,7 @@ int sendInfos (int socknum) {
    strcat(infos,"Node_Location: ");
    strcat(infos,conf0.node_location);
 
-   send(socknum,infos,strlen(infos)+1,0) ;
+   dexp_send(cpeer,infos,strlen(infos)) ;
    
      
 
@@ -617,7 +617,7 @@ void *session_thread_cli(void * p_input) {
    }
 
 
-  send(current_peer->socknum,"GET_CATALOG\r\n",14,0);
+  dexp_send(current_peer,"GET_CATALOG\r\n",14);
   mode = DEXPMODE_WAIT_CATALOG_HEADER;
   //current_peer->mode = DEXPMODE_BUSY;
   
@@ -705,7 +705,7 @@ void* keepalive_thread() {
 
        if (conf0.peers[i].mode != DEXPMODE_BUSY) {
 
-         send(conf0.peers[i].socknum,DEXP_PING,sizeof(DEXP_PING));
+         dexp_send(conf0.peers[i],DEXP_PING,sizeof(DEXP_PING));
 
       }
 
