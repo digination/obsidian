@@ -53,7 +53,7 @@ int sendInfos (int socknum) {
 }
 
 
-int sendCapa (int socknum) {
+int sendCapa (peer *cpeer) {
 
    extern dexpd_config conf0;
     
@@ -61,7 +61,7 @@ int sendCapa (int socknum) {
 
    strcpy(capacity,"PROTOCOL:V1\nCRYPTO_LAYER:NONE\n");
   
-   send(socknum,capacity,strlen(capacity)+1,0) ;
+   dexp_send(cpeer,capacity,strlen(capacity)) ;
    
      
 
@@ -69,7 +69,7 @@ int sendCapa (int socknum) {
 
 
 
-int sendCatalog(int socknum) {
+int sendCatalog(peer *cpeer) {
 
    extern catalog* cat0;
    extern int nb_cat;
@@ -79,10 +79,9 @@ int sendCatalog(int socknum) {
    char cat_chunk[521];
 
 
-   sprintf(cat_header,"CATALOG %d\r\n", (nb_cat * 64 ) + nb_cat );
-    
-   send(socknum,cat_header,strlen(cat_header)+1,0) ;
-
+   sprintf(cat_header,"CATALOG %d\r\n", (nb_cat * 64 ) + nb_cat );    
+   dexp_send(cpeer,cat_header,strlen(cat_header)) ;
+	
    setZero(cat_chunk);
    for (i=0;i<nb_cat;i=i+8) {
 
@@ -98,7 +97,7 @@ int sendCatalog(int socknum) {
 
       if(strlen(cat_chunk) > 0) {
 
-          send(socknum,cat_chunk,strlen(cat_chunk),0) ;
+          dexp_send(cpeer,cat_chunk,strlen(cat_chunk)) ;
           setZero(cat_chunk);
       }
 
@@ -239,7 +238,7 @@ int sendDoc(int socknum,char *hash) {
 
 
 
-int process_announce(int socknum,char*hash) {
+int process_announce(peer *cpeer,char*hash) {
 
    extern catalog* cat0;
    extern int nb_cat;
@@ -260,7 +259,7 @@ int process_announce(int socknum,char*hash) {
    
    if (! found ) {
 
-      fetch_doc(socknum,hash);
+      fetch_doc(cpeer,hash);
       return -1;
 
    } 
@@ -294,13 +293,13 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     else if (strstr( str0.strlist[0] , DEXP_GETCAPA ) == str0.strlist[0] ) {
 
-       sendCapa(socknum);
+       sendCapa(cpeer);
 
     }    
 
      else if (strstr( str0.strlist[0] , DEXP_GETCATALOG ) == str0.strlist[0] ) {
 
-       sendCatalog(socknum);
+       sendCatalog(cpeer);
 
     }
 
@@ -313,7 +312,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
             return -2;
        } 
 
-       process_announce(socknum,trim(str0.strlist[1]));
+       process_announce(cpeer,trim(str0.strlist[1]));
 
 
     }
@@ -343,7 +342,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
     else if (strstr( str0.strlist[0] , DEXP_STARTTLS ) == str0.strlist[0] ) {
 
        printf("Starting TLS communication...\n");
-       cpeer->sbio = start_tls(socknum);
+       cpeer->ssl = start_tls(socknum);
 
     }
 
@@ -371,7 +370,7 @@ void *session_thread_serv(void * p_input) {
 
   while(1) {
 
-     if ( recv(current_peer->socknum,io_buffer,4096*sizeof(char),0) > 0 ) {
+     if ( dexp_recv(current_peer,io_buffer,4096*sizeof(char)) > 0 ) {
 
         //printf("%s\n",(char*) io_buffer);
 
@@ -447,7 +446,7 @@ hash_queue* register_hashes(char *cat_str,hash_queue* hq0,int* nb_hq) {
 
 
 
-int fetch_doc(int socknum,char* hash) {
+int fetch_doc(peer *cpeer,char* hash) {
 
    extern dexpd_config conf0;
 
@@ -475,14 +474,14 @@ int fetch_doc(int socknum,char* hash) {
    strcat(doc_query,"\r\n");
    //printf("QUERY: %s",doc_query);
 
-   send(socknum,doc_query,strlen(doc_query),0);
+   dexp_send(cpeer,doc_query,strlen(doc_query));
    setZeroN(io_buffer,4096);
 
    file_part = (void*) malloc(4096*sizeof(char));
    setZeroN((char*)file_part,4096);
 
    
-   if ( (len = recv(socknum,io_buffer,4096 * sizeof(char),0)) > 0 ) {
+   if ( (len = dexp_recv(cpeer,io_buffer,4096 * sizeof(char))) > 0 ) {
      
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
@@ -542,7 +541,7 @@ int fetch_doc(int socknum,char* hash) {
          while(xfr_len < file_len) {
 
 
-            if ( (len = recv(socknum,io_buffer,4096*sizeof(char),0)) > 0 ) {
+            if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
 
               fwrite(io_buffer,1,len * sizeof(char),fh);
               xfr_len +=len;
@@ -567,27 +566,16 @@ int fetch_doc(int socknum,char* hash) {
 }
 
 
-
-
-
-
-
-
-
-
-
-void fetch_docs(int socknum,hash_queue* hq0,int* nb_hq) {
+void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
 
    int i;
    
    for (i=0;i<*nb_hq;i++) {
 
-      fetch_doc(socknum,hq0[i].hash);
+      fetch_doc(cpeer,hq0[i].hash);
    }
 
 }
-
-
 
 
 void *session_thread_cli(void * p_input) {
@@ -625,7 +613,7 @@ void *session_thread_cli(void * p_input) {
 
   if (conf0.use_tls) {
       send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
-      current_peer->sbio =  start_tls_cli(current_peer->socknum);
+      current_peer->ssl =  start_tls_cli(current_peer->socknum);
    }
 
 
@@ -673,7 +661,7 @@ void *session_thread_cli(void * p_input) {
                   if (nb_hq > 0 ) {
 
                       mode = DEXPMODE_FETCHDOCS;
-                      fetch_docs(current_peer->socknum,hq0,&nb_hq);
+                      fetch_docs(current_peer,hq0,&nb_hq);
                   }
 
                   current_peer->mode = DEXPMODE_IDLE;

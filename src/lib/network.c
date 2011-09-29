@@ -98,13 +98,6 @@ int create_socket_v6(char *addr,int port) {
 }
 
 
-
-
-
-
-
-
-
 int pconnect(char* host,int portno) {
 
 
@@ -138,11 +131,54 @@ int pconnect(char* host,int portno) {
 
   }
 
-
-
 }
 
 
+
+int dexp_send(peer* cpeer,void* data,int datalen) {
+
+	int len;
+	
+	if (cpeer->ssl != NULL) {
+
+	len = SSL_write(cpeer->ssl,data,datalen);
+		
+	}
+	
+
+	else {
+	
+       len = send(cpeer->socknum,data,datalen,0);
+		
+	}
+
+	
+   return len;
+	
+}
+
+
+
+int dexp_recv(peer* cpeer,void* dest,int destlen) {
+
+	int len;
+	
+	if (cpeer->ssl != NULL) {
+
+	len = SSL_read(cpeer->ssl,dest,destlen);
+		
+	}
+	
+
+	else {
+	
+       len = recv(cpeer->socknum,dest,destlen,0);
+		
+	}
+	
+   return len;
+	
+}
 
 
 

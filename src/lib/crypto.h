@@ -1,3 +1,6 @@
+#ifndef CRYPTO_H
+#define CRYPTO_H
+
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include "config.h"
@@ -22,4 +25,7 @@ void load_dh_params(SSL_CTX *ctx,char *file);
 void generate_eph_rsa_key(SSL_CTX *ctx);
 static int password_cb(char *buf,int num, int rwflag,void *userdata);
 
+SSL* start_tls(int);
+SSL* start_tls_cli(int);
 
+#endif

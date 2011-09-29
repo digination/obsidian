@@ -34,13 +34,8 @@
 #define DEXPMODE_FETCHDOCS 0x04
 #define DEXPMODE_BUSY 0x05
 
-
-
 //Headers
 #define DEXPHEAD_CATALOG  "CATALOG"
-
-
-
 
 #define BEGIN_XFR "BEGIN_XFR"
 #define END_XFR "END_XFR"
@@ -62,8 +57,8 @@ void *session_thread_cli(void *);
 void* keepalive_thread();
 
 int announce(char*);
-int process_announce(int,char*);
-int fetch_doc(int,char*);
+int process_announce(peer*,char*);
+int fetch_doc(peer*,char*);
 
 
 #endif

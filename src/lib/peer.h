@@ -7,7 +7,7 @@
       char host[512];
       int port;
       int socknum;
-      BIO* sbio;
+      SSL* ssl;
       pthread_t thread;
       int mode;
       char **announce_queue;

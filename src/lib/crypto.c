@@ -137,34 +137,34 @@ static int password_cb(char *buf,int num,
 
 
 
-BIO* start_tls(socknum) {
+SSL* start_tls(socknum) {
 
-     BIO *res;
+     BIO *sbio;
      SSL *ssl;
 
      extern dexpd_config conf0;
-     res=BIO_new_socket(socknum,BIO_NOCLOSE);
+     sbio=BIO_new_socket(socknum,BIO_NOCLOSE);
      ssl=SSL_new(conf0.ctx);
-     SSL_set_bio(ssl,res,res);
+     SSL_set_bio(ssl,sbio,sbio);
 
      if((SSL_accept(ssl)<=0)) fprintf(stderr,"TLS accept error\n");     
 
-   return res;
+   return ssl;
 
 }
 
 
-BIO* start_tls_cli(socknum) {
+SSL* start_tls_cli(socknum) {
 
-   BIO* res;
+   BIO *sbio;
    SSL *ssl;
    extern dexpd_config conf0;
 
     ssl=SSL_new(conf0.ctx);
-    res=BIO_new_socket(socknum,BIO_NOCLOSE);
-    SSL_set_bio(ssl,res,res);
+    sbio=BIO_new_socket(socknum,BIO_NOCLOSE);
+    SSL_set_bio(ssl,sbio,sbio);
 
     if(SSL_connect(ssl)<=0) fprintf(stderr,"TLS Connect Error\n");  
 
-    return res;
+    return ssl;
 }
