@@ -354,23 +354,76 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
 
 
-int receive_catalog(peer* cpeer) {
+char* receive_catalog(peer* cpeer) {
 
-  int rcv_mode;
   char io_buffer[4096];
+  char cat_part[4096];
   int len;
+  char *head_end_ptr;
+  int header_len;
+  int catpart_len;
+  int cat_len;
+  stringlist cat_params;
+  char* catalog_str;
+  int xfr_size = 0;
+  int i;
+
+
+  if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+
+        if (strstr(io_buffer,"CATALOG") == io_buffer ) {
+
+          head_end_ptr = strstr(io_buffer,"\r\n");
+          if (head_end_ptr != NULL) {
+            header_len = (head_end_ptr - io_buffer) + 2;
+            catpart_len = len - header_len;
+          }
+
+         printf("HEADER_LEN:%d | CAT_LEN:%d\n",header_len,cat_len);
+
+         if (catpart_len > 0) {
+            memcpy(cat_part,head_end_ptr+2,sizeof(char) * catpart_len);    
+            for(i=header_len;i<4096;i++) {
+              io_buffer[i] = '\0';
+            }            
+         }
+ 
+
+         printf("IO_BUFFER: %s\n",io_buffer);
+         cat_params = explode(io_buffer,' ');
+
+         if (cat_params.nb_strings > 1) {
+            cat_len = atoi(cat_params.strlist[1]);
+            catalog_str = (char*) malloc(cat_len * sizeof(char) +1);
+            setZero(catalog_str);  
+         }         
+
+         else {
+            return NULL;
+         }
+
+         if (catpart_len > 0) {
+           strncpy(catalog_str,cat_part,cat_len * sizeof(char));
+         }
+  
+         xfr_size += catpart_len;
+
+         while(xfr_size < cat_len) {
+
+            setZeroN(io_buffer,4096);
+            len = dexp_recv(cpeer,io_buffer,4096*sizeof(char));
+            strncat(catalog_str,io_buffer,cat_len*sizeof(char) - strlen(catalog_str));         
+            xfr_size += len;
+
+         }  
 
   
-
-  while(1) {
-
-
-     if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+      }
+       
+  }
 
 
-
-     }
-
+  return catalog_str;
 
 
 }
@@ -406,9 +459,10 @@ void *session_thread_serv(void * p_input) {
 
      if (current_peer->mode != DEXPMODE_BUSY && ! current_peer->has_catalog) {
 
-        dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
-
+        //dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
         //receive_catalog
+
+       //printf ("getcat?\n");
 
      }
 
@@ -653,9 +707,29 @@ void *session_thread_cli(void * p_input) {
 
 
   dexp_send(current_peer,"GET_CATALOG\r\n",14);
-  mode = DEXPMODE_WAIT_CATALOG_HEADER;
-  //current_peer->mode = DEXPMODE_BUSY;
-  
+  mode = DEXPMODE_CATALOG_XFR;
+  current_peer->mode = DEXPMODE_BUSY;
+  catalog_str = receive_catalog(current_peer);
+
+  if (catalog_str != NULL) {
+
+     hq0 = register_hashes(catalog_str,hq0,&nb_hq);
+     free(catalog_str);
+
+        if (nb_hq > 0 ) {
+
+            mode = DEXPMODE_FETCHDOCS;
+            fetch_docs(current_peer,hq0,&nb_hq);
+        }
+
+        current_peer->mode = DEXPMODE_IDLE;
+        current_peer->has_catalog = 1;
+
+  }
+
+  mode = DEXPMODE_IDLE;
+  printf("MODE IDLE \n");
+
   while(1) {
 
 
@@ -666,47 +740,6 @@ void *session_thread_cli(void * p_input) {
             case DEXPMODE_IDLE:
                take_action(current_peer->socknum,current_peer,io_buffer);
                break;
-            case DEXPMODE_WAIT_CATALOG_HEADER:
-
-               str0 = explode(io_buffer,' ');
-               if (strstr( str0.strlist[0] , DEXPHEAD_CATALOG ) == str0.strlist[0] ) {
-                  
-                   if (str0.nb_strings > 1) {
-                      catalog_size = atoi(trim(str0.strlist[1]));
-                      catalog_str = (char*) malloc(catalog_size * sizeof(char) +1);
-                      setZero(catalog_str);
-                      mode = DEXPMODE_CATALOG_XFR;
-                   }
-
-               }
-   
-               break;
- 
-             case DEXPMODE_CATALOG_XFR:
-
-                xfr_size += len; 
-                strncat(catalog_str,io_buffer,catalog_size * sizeof(char) - strlen(catalog_str) );
-                //catalog xfer is finished
-                if (xfr_size >= catalog_size) {
-
-                  hq0 = register_hashes(catalog_str,hq0,&nb_hq);
-
-                  free(catalog_str);
-
-                  if (nb_hq > 0 ) {
-
-                      mode = DEXPMODE_FETCHDOCS;
-                      fetch_docs(current_peer,hq0,&nb_hq);
-                  }
-
-                  current_peer->mode = DEXPMODE_IDLE;
-                  current_peer->has_catalog = 1;
-                  mode = DEXPMODE_IDLE;
-                  printf("MODE IDLE \n");
-
-                }
-
-                break;
              
             default:
                take_action(current_peer->socknum,current_peer,io_buffer);
@@ -716,8 +749,7 @@ void *session_thread_cli(void * p_input) {
 
      }
 
-     setZero((char*)io_buffer);
-
+     setZeroN(io_buffer,4096);
      
   }
 
