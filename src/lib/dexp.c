@@ -353,11 +353,35 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 }
 
 
+
+int receive_catalog(peer* cpeer) {
+
+  int rcv_mode;
+  char io_buffer[4096];
+  int len;
+
+  
+
+  while(1) {
+
+
+     if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+
+
+
+     }
+
+
+
+}
+
+
+
 void *session_thread_serv(void * p_input) {
 
   peer* current_peer = (peer*) p_input;
   void* io_buffer;
-
+  int i;
   pthread_detach(pthread_self());
 
   io_buffer = (void*) malloc(4096*sizeof(char));
@@ -378,8 +402,19 @@ void *session_thread_serv(void * p_input) {
         setZero((char*)io_buffer);
 
      }
-   
+
+
+     if (current_peer->mode != DEXPMODE_BUSY && ! current_peer->has_catalog) {
+
+        dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
+
+        //receive_catalog
+
+     }
+
   }
+
+
 
 
 }
@@ -665,6 +700,7 @@ void *session_thread_cli(void * p_input) {
                   }
 
                   current_peer->mode = DEXPMODE_IDLE;
+                  current_peer->has_catalog = 1;
                   mode = DEXPMODE_IDLE;
                   printf("MODE IDLE \n");
 

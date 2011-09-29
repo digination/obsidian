@@ -36,6 +36,7 @@ int parse_peers(char *peers_str) {
 
 		 //we put the SSL handler to NULL
 		 conf0.peers[i].ssl = NULL;
+		 conf0.peers[i].has_catalog = 0;
 		  
          free(hostandport);
       }
@@ -149,7 +150,13 @@ int init_config() {
 
            memcpy(conf0.tls_server_cert,opt_value,MAX_OPT_STR_LEN * sizeof(char));           
         }
-       
+
+         /*
+         else if (strcmp(opt_name,"tls_cli_cert") == 0 ) {
+
+           memcpy(conf0.tls_cli_cert,opt_value,MAX_OPT_STR_LEN * sizeof(char));           
+        }
+        */
 
          else if (strcmp(opt_name,"tls_server_ca") == 0 ) {
 

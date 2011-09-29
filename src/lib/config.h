@@ -39,6 +39,7 @@ typedef struct dexpd_config {
    char ipv6_listening_addr[MAX_OPT_STR_LEN];   
 
    uint8_t use_tls;
+   //char tls_cli_cert[MAX_OPT_STR_LEN];
    char tls_server_ca[MAX_OPT_STR_LEN];
    char tls_server_cert[MAX_OPT_STR_LEN];
    char tls_server_dh[MAX_OPT_STR_LEN];

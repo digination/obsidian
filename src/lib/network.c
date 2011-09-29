@@ -168,10 +168,7 @@ int dexp_recv(peer* cpeer,void* dest,int destlen) {
 	len = SSL_read(cpeer->ssl,dest,destlen);
 		
 	}
-	
-
 	else {
-	
        len = recv(cpeer->socknum,dest,destlen,0);
 		
 	}
