@@ -459,12 +459,13 @@ void *session_thread_serv(void * p_input) {
 
      if (current_peer->mode != DEXPMODE_BUSY && ! current_peer->has_catalog) {
 
-        //dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
-        //receive_catalog
+        printf ("GETCAT!\n");
 
-       //printf ("getcat?\n");
-
+        dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
+        receive_catalog(current_peer);
+      
      }
+
 
   }
 
