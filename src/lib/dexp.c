@@ -79,8 +79,6 @@ int sendCatalog(peer *cpeer) {
    char cat_chunk[521];
 
 
-   cpeer->mode = DEXPMODE_BUSY;
-
    sprintf(cat_header,"CATALOG %d\r\n", (nb_cat * 64 ) + nb_cat );    
    dexp_send(cpeer,cat_header,strlen(cat_header)) ;
 	
@@ -106,7 +104,6 @@ int sendCatalog(peer *cpeer) {
 
    }   
 
-    cpeer->mode = DEXPMODE_IDLE;
 }
 
 
@@ -170,8 +167,6 @@ int sendDoc(peer* cpeer,char *hash) {
    extern dexpd_config conf0;
    extern int nb_cat;
 
-   cpeer->mode = DEXPMODE_BUSY;
-
    for (i=0;i<nb_cat;i++) {
 
      if (strcmp(hash,cat0[i].hash) == 0) {
@@ -187,7 +182,6 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"400 FILE NOT FOUND\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer)+1);
-     cpeer->mode = DEXPMODE_IDLE;
      return -1; 
 
    }
@@ -207,7 +201,6 @@ int sendDoc(peer* cpeer,char *hash) {
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer));
      //dexp_send(cpeer,file_path,strlen(file_path));
-     cpeer->mode = DEXPMODE_IDLE;
      return -2;
 
 
@@ -241,7 +234,6 @@ int sendDoc(peer* cpeer,char *hash) {
    }
 
    fclose(fh);
-   cpeer->mode = DEXPMODE_IDLE;
    return 0;
    
 }
@@ -685,8 +677,6 @@ void *session_thread_cli(void * p_input) {
   peer* current_peer = (peer*) p_input;
   char io_buffer[4096];
 
-  int mode = DEXPMODE_IDLE;
-
   stringlist str0;
   int catalog_size = 0;
   char *catalog_str;
@@ -697,6 +687,7 @@ void *session_thread_cli(void * p_input) {
   int nb_hq;
 
   int k;
+  int mode ;
 
   pthread_detach(pthread_self());
 
@@ -709,10 +700,6 @@ void *session_thread_cli(void * p_input) {
   current_peer->announce_queue = (char**) malloc(1*sizeof(char*));
   current_peer->an_queuesize = 0;
   
-  //initialize peer_mode
-  current_peer->mode = DEXPMODE_IDLE;
-
-
   if (conf0.use_tls) {
       send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
       current_peer->ssl =  (SSL*) start_tls_cli(current_peer->socknum);
@@ -720,8 +707,6 @@ void *session_thread_cli(void * p_input) {
 
 
   dexp_send(current_peer,"GET_CATALOG\r\n",14);
-  mode = DEXPMODE_CATALOG_XFR;
-  current_peer->mode = DEXPMODE_BUSY;
   catalog_str = receive_catalog(current_peer);
 
   if (catalog_str != NULL) {
@@ -731,17 +716,15 @@ void *session_thread_cli(void * p_input) {
 
         if (nb_hq > 0 ) {
 
-            mode = DEXPMODE_FETCHDOCS;
             fetch_docs(current_peer,hq0,&nb_hq);
         }
-
-        current_peer->mode = DEXPMODE_IDLE;
         current_peer->has_catalog = 1;
 
   }
 
-  mode = DEXPMODE_IDLE;
   printf("MODE IDLE \n");
+
+  mode = DEXPMODE_IDLE;
 
   while(1) {
 
