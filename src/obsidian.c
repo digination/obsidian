@@ -38,6 +38,7 @@ int connectAll() {
   for (i=0;i<conf0.nb_peers;i++) {
           
       conf0.peers[i].socknum = -1;
+	  conf0.peers[i].ssl = NULL;
 
       if ( (socknum = pconnect(conf0.peers[i].host,conf0.peers[i].port)) < 0 ) {
 
@@ -50,7 +51,6 @@ int connectAll() {
 
          printf("link established with peer %s !\n" , conf0.peers[i].host); 
          conf0.peers[i].socknum = socknum;
-		 conf0.peers[i].ssl = NULL;
          pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
       }
 
@@ -286,10 +286,8 @@ int main(int argc, char** argv) {
          }  
 
          else {
-
-
-             
-
+			 
+             conf0.peers[peer_num].ssl = NULL;
              pthread_create(&conf0.peers[peer_num].thread,NULL,session_thread_serv,(void*)&conf0.peers[peer_num]);
   
 
