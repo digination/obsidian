@@ -342,7 +342,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
     else if (strstr( str0.strlist[0] , DEXP_STARTTLS ) == str0.strlist[0] ) {
 
        printf("Starting TLS communication...\n");
-       cpeer->ssl = start_tls(socknum);
+       cpeer->ssl = (SSL*) start_tls(socknum);
 
     }
 
@@ -613,7 +613,7 @@ void *session_thread_cli(void * p_input) {
 
   if (conf0.use_tls) {
       send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
-      current_peer->ssl =  start_tls_cli(current_peer->socknum);
+      current_peer->ssl =  (SSL*) start_tls_cli(current_peer->socknum);
    }
 
 

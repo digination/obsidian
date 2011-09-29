@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
    
    if (conf0.use_tls) {
       printf("initializing TLS config...\n");
-      conf0.ctx=initialize_ctx(conf0.tls_server_cert,"password");
+      conf0.ctx=(SSL_CTX*)initialize_ctx(conf0.tls_server_cert,"password");
       load_dh_params(conf0.ctx,conf0.tls_server_dh);
    }
 
