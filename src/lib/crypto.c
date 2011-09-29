@@ -1,22 +1,17 @@
 #include "crypto.h"
 
 
-#define CA_LIST "/etc/hydra/ssl/root.pem"
-#define KEYFILE "/etc/hydra/ssl/server.pem"
-#define PASSWORD "password"
-#define DHFILE "/etc/hydra/ssl/dh1024.pem"
-#define USERFILE "/etc/hydra/users"
-
 
 //SSL specific functions:
 SSL_CTX *initialize_ctx(keyfile,password)
   char *keyfile;
   char *password;
  {
+        extern dexpd_config conf0;
 	extern BIO *bio_err;
 	SSL_METHOD *meth;
-    SSL_CTX *ctx;
-    
+        SSL_CTX *ctx;
+
     if(!bio_err){
       /* Global system initialization*/
       SSL_library_init();
@@ -44,7 +39,7 @@ SSL_CTX *initialize_ctx(keyfile,password)
 
     /* Load the CAs we trust*/
     if(!(SSL_CTX_load_verify_locations(ctx,
-      CA_LIST,0)))
+     conf0.tls_server_ca,0)))
       berr_exit("Can't read CA list");
 #if (OPENSSL_VERSION_NUMBER < 0x00905100L)
     SSL_CTX_set_verify_depth(ctx,1);
@@ -140,3 +135,36 @@ static int password_cb(char *buf,int num,
     return(strlen(pass));
   }
 
+
+
+BIO* start_tls(socknum) {
+
+     BIO *res;
+     SSL *ssl;
+
+     extern dexpd_config conf0;
+     res=BIO_new_socket(socknum,BIO_NOCLOSE);
+     ssl=SSL_new(conf0.ctx);
+     SSL_set_bio(ssl,res,res);
+
+     if((SSL_accept(ssl)<=0)) fprintf(stderr,"TLS accept error\n");     
+
+   return res;
+
+}
+
+
+BIO* start_tls_cli(socknum) {
+
+   BIO* res;
+   SSL *ssl;
+   extern dexpd_config conf0;
+
+    ssl=SSL_new(conf0.ctx);
+    res=BIO_new_socket(socknum,BIO_NOCLOSE);
+    SSL_set_bio(ssl,res,res);
+
+    if(SSL_connect(ssl)<=0) fprintf(stderr,"TLS Connect Error\n");  
+
+    return res;
+}

@@ -137,6 +137,28 @@ int init_config() {
            memcpy(conf0.node_location,opt_value,255 * sizeof(char));           
         }
 
+        else if (strcmp(opt_name,"use_tls") == 0 ) {
+           if (strcmp(opt_value,"true") == 0 ) conf0.use_tls = 1;
+         }
+
+        else if (strcmp(opt_name,"tls_server_cert") == 0 ) {
+
+           memcpy(conf0.tls_server_cert,opt_value,MAX_OPT_STR_LEN * sizeof(char));           
+        }
+       
+
+         else if (strcmp(opt_name,"tls_server_ca") == 0 ) {
+
+           memcpy(conf0.tls_server_ca,opt_value,MAX_OPT_STR_LEN * sizeof(char));           
+        }
+
+        else if (strcmp(opt_name,"tls_server_dh") == 0 ) {
+
+           memcpy(conf0.tls_server_dh,opt_value,MAX_OPT_STR_LEN * sizeof(char));           
+        }
+
+
+
 
          else if (strcmp(opt_name,"use_ipv6") == 0 ) {
             if (strcmp(opt_value,"true") == 0 ) conf0.use_ipv6 = 1;

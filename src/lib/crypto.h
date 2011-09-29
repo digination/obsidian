@@ -1,5 +1,6 @@
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
+#include "config.h"
 
 #define dexpd_read BIO_gets
 #define dexpd_write BIO_puts

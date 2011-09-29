@@ -273,7 +273,7 @@ int process_announce(int socknum,char*hash) {
 
 
 
-int take_action(int socknum,void* io_buffer) {
+int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
   char *input = (char*) io_buffer;
 
@@ -340,6 +340,14 @@ int take_action(int socknum,void* io_buffer) {
     }
 
 
+    else if (strstr( str0.strlist[0] , DEXP_STARTTLS ) == str0.strlist[0] ) {
+
+       printf("Starting TLS communication...\n");
+       cpeer->sbio = start_tls(socknum);
+
+    }
+
+
 
   }
 
@@ -367,7 +375,7 @@ void *session_thread_serv(void * p_input) {
 
         //printf("%s\n",(char*) io_buffer);
 
-        take_action(current_peer->socknum,io_buffer);
+        take_action(current_peer->socknum,current_peer,io_buffer);
         setZero((char*)io_buffer);
 
      }
@@ -614,6 +622,13 @@ void *session_thread_cli(void * p_input) {
   //initialize peer_mode
   current_peer->mode = DEXPMODE_IDLE;
 
+
+  if (conf0.use_tls) {
+      send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
+      current_peer->sbio =  start_tls_cli(current_peer->socknum);
+   }
+
+
   send(current_peer->socknum,"GET_CATALOG\r\n",14,0);
   mode = DEXPMODE_WAIT_CATALOG_HEADER;
   //current_peer->mode = DEXPMODE_BUSY;
@@ -626,7 +641,7 @@ void *session_thread_cli(void * p_input) {
          switch(mode) {
 
             case DEXPMODE_IDLE:
-               take_action(current_peer->socknum,io_buffer);
+               take_action(current_peer->socknum,current_peer,io_buffer);
                break;
             case DEXPMODE_WAIT_CATALOG_HEADER:
 
@@ -670,7 +685,7 @@ void *session_thread_cli(void * p_input) {
                 break;
              
             default:
-               take_action(current_peer->socknum,io_buffer);
+               take_action(current_peer->socknum,current_peer,io_buffer);
                break;           
          }
 

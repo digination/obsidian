@@ -218,8 +218,8 @@ int main(int argc, char** argv) {
 
    struct sockaddr_in peer_addr;
    socklen_t addr_len = sizeof(peer_addr);
-  
 
+  
    printf ("\n");
 
    printf ("        /\\\n");
@@ -227,17 +227,22 @@ int main(int argc, char** argv) {
    printf ("      /0011\\\n");
    printf ("     /000111\\     [[ Obsidian 0.1 == Clement Game 2011 ]]\n");
    printf ("    /00001111\\\n");
-   printf ("   /0000011111\\\n");
+   printf ("   /0000011000\\\n");
    printf ("   \\0000000000/\n\n");
-
 
 
    init_config();
 
+   
+   if (conf0.use_tls) {
+      printf("initializing TLS config...\n");
+      conf0.ctx=initialize_ctx(conf0.tls_server_cert,"password");
+      load_dh_params(conf0.ctx,conf0.tls_server_dh);
+   }
+
    printf("Loading catalog from %s...\n",conf0.data_dir);
 
    load_catalog(conf0.data_dir);
-   
    printf("starting inotify events listener...\n");
 
    //inotify init functions on datadir;
@@ -280,6 +285,9 @@ int main(int argc, char** argv) {
          }  
 
          else {
+
+
+             
 
              pthread_create(&conf0.peers[peer_num].thread,NULL,session_thread_serv,(void*)&conf0.peers[peer_num]);
   

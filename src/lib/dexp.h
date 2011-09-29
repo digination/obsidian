@@ -19,6 +19,8 @@
 #define DEXP_GETCATALOG "GET_CATALOG\r\n"
 #define DEXP_ANNOUNCE "ANNOUNCE"
 #define DEXP_PING "PING\r\n"
+#define DEXP_STARTTLS "STARTTLS\r\n"
+
 
 //Responses
 #define DEXP_PONG "PONG\r\n"
