@@ -79,6 +79,8 @@ int sendCatalog(peer *cpeer) {
    char cat_chunk[521];
 
 
+   cpeer->mode = DEXPMODE_BUSY;
+
    sprintf(cat_header,"CATALOG %d\r\n", (nb_cat * 64 ) + nb_cat );    
    dexp_send(cpeer,cat_header,strlen(cat_header)) ;
 	
@@ -104,6 +106,7 @@ int sendCatalog(peer *cpeer) {
 
    }   
 
+    cpeer->mode = DEXPMODE_IDLE;
 }
 
 
@@ -167,6 +170,8 @@ int sendDoc(peer* cpeer,char *hash) {
    extern dexpd_config conf0;
    extern int nb_cat;
 
+   cpeer->mode = DEXPMODE_BUSY;
+
    for (i=0;i<nb_cat;i++) {
 
      if (strcmp(hash,cat0[i].hash) == 0) {
@@ -182,6 +187,7 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"400 FILE NOT FOUND\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer)+1);
+     cpeer->mode = DEXPMODE_IDLE;
      return -1; 
 
    }
@@ -201,7 +207,9 @@ int sendDoc(peer* cpeer,char *hash) {
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer));
      //dexp_send(cpeer,file_path,strlen(file_path));
+     cpeer->mode = DEXPMODE_IDLE;
      return -2;
+
 
    }
 
@@ -233,7 +241,9 @@ int sendDoc(peer* cpeer,char *hash) {
    }
 
    fclose(fh);
+   cpeer->mode = DEXPMODE_IDLE;
    return 0;
+   
 }
 
 
@@ -461,9 +471,11 @@ void *session_thread_serv(void * p_input) {
 
         printf ("GETCAT!\n");
 
+        current_peer->mode = DEXPMODE_BUSY;
         dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
         receive_catalog(current_peer);
-      
+        current_peer->mode = DEXPMODE_IDLE;
+
      }
 
 
