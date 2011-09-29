@@ -50,6 +50,7 @@ int connectAll() {
 
          printf("link established with peer %s !\n" , conf0.peers[i].host); 
          conf0.peers[i].socknum = socknum;
+		 conf0.peers[i].ssl = NULL;
          pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
       }
 
