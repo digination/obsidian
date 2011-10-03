@@ -8,10 +8,34 @@ int isPeer(char *peer_str,int sock_fd) {
   
    struct hostent* pname;
 
-
    for (i=0;i<conf0.nb_peers;i++) {
 
      pname = gethostbyname(conf0.peers[i].host);
+
+     if ( strcmp(pname->h_name,peer_str) == 0 ) {
+
+     conf0.peers[i].socknum = sock_fd;
+     return i;
+     }
+
+     
+   }
+
+   return -1;
+
+}
+
+
+int isPeerV6(char *peer_str,int sock_fd) {
+
+   int i =0;
+   extern dexpd_config conf0;
+  
+   struct hostent* pname;
+
+   for (i=0;i<conf0.nb_peers;i++) {
+
+     pname = gethostbyname2(conf0.peers[i].host,AF_INET6);
 
      if ( strcmp(pname->h_name,peer_str) == 0 ) {
 
@@ -369,7 +393,7 @@ void* listen_v6() {
          printf("New Connection From %s\n",peer_str);
 
          //gerer la notion de public ici
-         if ( (peer_num = isPeer(peer_str,sock_id)) < 0 ) {
+         if ( (peer_num = isPeerV6(peer_str,sock_id)) < 0 ) {
 
              fprintf(stderr,"ERROR: REMOTE HOST NOT In PEERS LIST\n");
              close(sock_id);
