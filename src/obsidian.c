@@ -38,7 +38,7 @@ int isPeerV6(char *peer_str,int sock_fd) {
    struct hostent* pname;
 
    for (i=0;i<conf0.nb_peers;i++) {
-
+    
      pname = gethostbyname2(conf0.peers[i].host,AF_INET6);
 
      if ( strcmp(pname->h_name,peer_str) == 0 ) {
@@ -394,7 +394,7 @@ void* listen_v6() {
       else {
 
          inet_ntop(AF_INET6,(void*)&peer_addr->sin6_addr, peer_buf,39*sizeof(char));
-         printf("New Connection From %s\n",peer_str);
+         printf("New Connection From %s\n",peer_buf);
 
          //gerer la notion de public ici
          if ( (peer_num = isPeerV6(peer_buf,sock_id)) < 0 ) {
