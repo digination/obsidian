@@ -320,7 +320,7 @@ void* listen_v6() {
    extern dexpd_config conf0;
    int socknum = create_socket_v6(conf0.ipv6_listening_addr,conf0.listening_port);
    int sock_id;
-   char* peer_str;
+   char peer_str[40];
    int peer_num;
    
    struct sockaddr_in peer_addr;
@@ -343,7 +343,7 @@ void* listen_v6() {
 
       else {
 
-         peer_str = inet_ntoa(peer_addr.sin_addr);
+         inet_ntop(AF_INET6,(void*)&peer_addr.sin_addr, peer_str,39*sizeof(char));
          printf("New Connection From %s\n",peer_str);
 
          //gerer la notion de public ici
