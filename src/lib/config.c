@@ -30,7 +30,7 @@ int parse_peers(char *peers_str) {
 
    for (i=0;i<nb_peers;i++) {
 
-      if ((hostandport = explode(peersarray[i],':').strlist)  != NULL) {
+      if ((hostandport = explode(peersarray[i],' ').strlist)  != NULL) {
          memcpy(conf0.peers[i].host,hostandport[0],255 * sizeof(char));
          conf0.peers[i].port = atoi(hostandport[1]);
 

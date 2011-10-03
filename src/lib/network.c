@@ -118,13 +118,10 @@ int pconnect6(char* host,int portno) {
       return -2;
   }
 
-  //bzero((char *) serv_addr, sizeof(ss));
-  serv_addr->sin6_family = AF_INET6;
-  //bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr, server->h_length);
 
-  inet_pton(AF_INET6,server->h_addr,ip6addr);
-  memcpy(serv_addr->sin6_addr.s6_addr,ip6addr,16*sizeof(uint8_t));
-  
+  serv_addr->sin6_family = AF_INET6;
+  memcpy(&serv_addr->sin6_addr,server->h_addr,server->h_length);
+
   serv_addr->sin6_port = htons(portno);
 
 
