@@ -216,6 +216,7 @@ int main(int argc, char** argv) {
 
    pthread_t notify_th;
    pthread_t reconnect_th;
+   pthread_t listenv6;
 
    struct sockaddr_in peer_addr;
    socklen_t addr_len = sizeof(peer_addr);
@@ -262,6 +263,13 @@ int main(int argc, char** argv) {
 
    socknum  = create_socket(conf0.listening_addr,conf0.listening_port);
 
+   if (conf0.use_ipv6) {
+
+      printf("creating IPv6 Socket on %s:%d...\n",conf0.ipv6_listening_addr,conf0.listening_port);
+      pthread_create(&listenv6,NULL,listen_v6,NULL);
+
+   }
+
   
 
    while(1) {
@@ -304,4 +312,60 @@ int main(int argc, char** argv) {
 
 }
 
+
+
+
+void* listen_v6() {
+
+   extern dexpd_config conf0;
+   int socknum = create_socket_v6(conf0.ipv6_listening_addr,conf0.listening_port);
+   int sock_id;
+   char* peer_str;
+   int peer_num;
+   
+   struct sockaddr_in peer_addr;
+   socklen_t addr_len = sizeof(peer_addr);
+
+
+   if (socknum < 0) {
+
+      fprintf(stderr,"ERROR: CANNOT CREATE SOCKET IPv6 ON %s:%d\n",conf0.ipv6_listening_addr,conf0.listening_port);
+      return;
+   }
+
+    while(1) {
+
+      if((sock_id = accept(socknum,(struct sockaddr*)&peer_addr,&addr_len))<0) {
+
+         fprintf(stderr,"ERROR: CANNOT ACCEPT NEW CONNECTION ON %s:%d",conf0.ipv6_listening_addr,conf0.listening_port);
+
+      }
+
+      else {
+
+         peer_str = inet_ntoa(peer_addr.sin_addr);
+         printf("New Connection From %s\n",peer_str);
+
+         //gerer la notion de public ici
+         if ( (peer_num = isPeer(peer_str,sock_id)) < 0 ) {
+
+             fprintf(stderr,"ERROR: REMOTE HOST NOT In PEERS LIST\n");
+             close(sock_id);
+
+         }  
+
+         else {
+			 
+             conf0.peers[peer_num].ssl = NULL;
+             pthread_create(&conf0.peers[peer_num].thread,NULL,session_thread_serv,(void*)&conf0.peers[peer_num]);
+  
+
+         }
+     
+      }
+		
+   }
+
+ 
+}
 

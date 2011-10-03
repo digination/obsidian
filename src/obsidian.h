@@ -18,6 +18,7 @@ int try_reconnect();
 int load_catalog(char*);
 int isPeer(char*,int);
 void* reconnect_loop();
+void* listen_v6();
 
 
 
