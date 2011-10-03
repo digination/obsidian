@@ -10,14 +10,18 @@ int isPeer(char *peer_str,int sock_fd) {
 
    for (i=0;i<conf0.nb_peers;i++) {
 
-     pname = gethostbyname(conf0.peers[i].host);
+     //skip ipv6-coded peers if available
+     if (strstr(conf0.peers[i].host,':') == NULL ) {
 
-     if ( strcmp(pname->h_name,peer_str) == 0 ) {
+        pname = gethostbyname(conf0.peers[i].host);
 
-     conf0.peers[i].socknum = sock_fd;
-     return i;
+        if ( strcmp(pname->h_name,peer_str) == 0 ) {
+
+           conf0.peers[i].socknum = sock_fd;
+           return i;
+        }
+
      }
-
      
    }
 
