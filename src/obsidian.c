@@ -389,11 +389,11 @@ void* listen_v6() {
 
       else {
 
-         peer_str = inet_ntop(AF_INET6,(void*)&peer_addr->sin6_addr, peer_buf,39*sizeof(char));
+         inet_ntop(AF_INET6,(void*)&peer_addr->sin6_addr, peer_buf,39*sizeof(char));
          printf("New Connection From %s\n",peer_str);
 
          //gerer la notion de public ici
-         if ( (peer_num = isPeerV6(peer_str,sock_id)) < 0 ) {
+         if ( (peer_num = isPeerV6(peer_buf,sock_id)) < 0 ) {
 
              fprintf(stderr,"ERROR: REMOTE HOST NOT In PEERS LIST\n");
              close(sock_id);
