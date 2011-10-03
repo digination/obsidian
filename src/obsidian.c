@@ -320,10 +320,13 @@ void* listen_v6() {
    extern dexpd_config conf0;
    int socknum = create_socket_v6(conf0.ipv6_listening_addr,conf0.listening_port);
    int sock_id;
-   char peer_str[40];
+   char peer_buf[40];
+   char *peer_str;
    int peer_num;
    
-   struct sockaddr_in peer_addr;
+   struct sockaddr_storage ss;
+   struct sockaddr_in6 *peer_addr = (struct sockaddr_in6 *) &ss;
+   
    socklen_t addr_len = sizeof(peer_addr);
 
 
@@ -335,7 +338,7 @@ void* listen_v6() {
 
     while(1) {
 
-      if((sock_id = accept(socknum,(struct sockaddr*)&peer_addr,&addr_len))<0) {
+      if((sock_id = accept(socknum,(struct sockaddr*)peer_addr,&addr_len))<0) {
 
          fprintf(stderr,"ERROR: CANNOT ACCEPT NEW CONNECTION ON %s:%d",conf0.ipv6_listening_addr,conf0.listening_port);
 
@@ -343,7 +346,7 @@ void* listen_v6() {
 
       else {
 
-         inet_ntop(AF_INET6,(void*)&peer_addr.sin_addr, peer_str,39*sizeof(char));
+         peer_str = inet_ntop(AF_INET6,(void*)&peer_addr->sin6_addr, peer_buf,39*sizeof(char));
          printf("New Connection From %s\n",peer_str);
 
          //gerer la notion de public ici
