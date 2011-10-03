@@ -40,14 +40,33 @@ int connectAll() {
       conf0.peers[i].socknum = -1;
 	  conf0.peers[i].ssl = NULL;
 
-      if ( (socknum = pconnect(conf0.peers[i].host,conf0.peers[i].port)) < 0 ) {
+      if (conf0.use_ipv6) {
+
+         if ( (socknum = pconnect6(conf0.peers[i].host,conf0.peers[i].port)) < 0 ) {
+
+
+         }
+      
+
+         else {
+
+            printf("link established with peer %s !\n" , conf0.peers[i].host); 
+            conf0.peers[i].socknum = socknum;
+            pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
+         }
+
+
+      }
+
+
+      if ( conf0.peers[i].socknum == -1 && (socknum = pconnect(conf0.peers[i].host,conf0.peers[i].port)) < 0 ) {
 
           fprintf(stderr,"Notice: cannot connect to peer %s\n", conf0.peers[i].host );
 
       }
       
 
-      else {
+      else if (conf0.peers[i].socknum == -1) {
 
          printf("link established with peer %s !\n" , conf0.peers[i].host); 
          conf0.peers[i].socknum = socknum;
@@ -265,7 +284,7 @@ int main(int argc, char** argv) {
 
    if (conf0.use_ipv6) {
 
-      printf("creating IPv6 Socket on %s:%d...\n",conf0.ipv6_listening_addr,conf0.listening_port);
+      printf("listening on %s:%d...\n",conf0.ipv6_listening_addr,conf0.listening_port);
       pthread_create(&listenv6,NULL,listen_v6,NULL);
 
    }

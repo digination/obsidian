@@ -98,6 +98,49 @@ int create_socket_v6(char *addr,int port) {
 }
 
 
+
+int pconnect6(char* host,int portno) {
+
+
+  int sockfd, n;
+  struct sockaddr_storage ss;
+  struct sockaddr_in6 *serv_addr = (struct sockaddr_in6 *) &ss;
+  struct hostent *server;
+  uint8_t ip6addr[16];
+
+  sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+  if (sockfd < 0) { 
+        return -1;
+  }
+
+  server = gethostbyname2(host,AF_INET6);
+  if (server == NULL) { 
+      return -2;
+  }
+
+  //bzero((char *) serv_addr, sizeof(ss));
+  serv_addr->sin6_family = AF_INET6;
+  //bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr, server->h_length);
+
+  inet_pton(AF_INET6,server->h_addr,ip6addr);
+  memcpy(serv_addr->sin6_addr.s6_addr,ip6addr,16*sizeof(uint8_t));
+  
+  serv_addr->sin6_port = htons(portno);
+
+
+  if (connect(sockfd,(struct sockaddr *) serv_addr,sizeof(ss)) < 0) {
+        return -3;
+  }
+
+  else {
+
+      return sockfd; 
+
+  }
+
+}
+
+
 int pconnect(char* host,int portno) {
 
 
