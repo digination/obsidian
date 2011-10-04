@@ -5,51 +5,23 @@ int isPeer(char *peer_str,int sock_fd) {
 
    int i =0;
    extern dexpd_config conf0;
-  
-   struct hostent* pname;
+   char ip_str[40];
+   struct addrinfo *ainfo;
 
    for (i=0;i<conf0.nb_peers;i++) {
 
-     //skip ipv6-coded peers if available
-     if (strstr(conf0.peers[i].host,":") == NULL ) {
-
-        pname = gethostbyname(conf0.peers[i].host);
-
-        if ( strcmp(pname->h_name,peer_str) == 0 ) {
-
+      if ( (getaddrinfo(conf0.peers[i].host,NULL,NULL,&ainfo)) > 0 ) {
+      
+          inet_ntop(ainfo->ai_family,&(ainfo->ai_addr->sa_data), ip_str,39*sizeof(char));
+         if ( strcmp(ip_str,peer_str) == 0 ) {
            conf0.peers[i].socknum = sock_fd;
            return i;
-        }
+         }
 
-     }
-     
+       }
+
    }
-
-   return -1;
-
-}
-
-
-int isPeerV6(char *peer_str,int sock_fd) {
-
-   int i =0;
-   extern dexpd_config conf0;
-  
-   struct hostent* pname;
-
-   for (i=0;i<conf0.nb_peers;i++) {
-    
-     pname = gethostbyname2(conf0.peers[i].host,AF_INET6);
-
-     if ( strcmp(pname->h_name,peer_str) == 0 ) {
-
-     conf0.peers[i].socknum = sock_fd;
-     return i;
-     }
-
      
-   }
-
    return -1;
 
 }
@@ -371,8 +343,7 @@ void* listen_v6() {
    char *peer_str;
    int peer_num;
    
-   struct sockaddr_storage ss;
-   struct sockaddr_in6 *peer_addr = (struct sockaddr_in6 *) &ss;
+   struct sockaddr_in6 peer_addr;
    
    socklen_t addr_len = sizeof(peer_addr);
 
@@ -385,7 +356,7 @@ void* listen_v6() {
 
     while(1) {
 
-      if((sock_id = accept(socknum,(struct sockaddr*)peer_addr,&addr_len))<0) {
+      if((sock_id = accept(socknum,(struct sockaddr*)&peer_addr,&addr_len))<0) {
 
          fprintf(stderr,"ERROR: CANNOT ACCEPT NEW CONNECTION ON %s:%d",conf0.ipv6_listening_addr,conf0.listening_port);
 
@@ -393,11 +364,12 @@ void* listen_v6() {
 
       else {
 
-         inet_ntop(AF_INET6,(void*)&peer_addr->sin6_addr, peer_buf,39*sizeof(char));
+         setZeroN(peer_buf,40);
+         inet_ntop(AF_INET6,&(peer_addr.sin6_addr), peer_buf,39*sizeof(char));
          printf("New Connection From %s\n",peer_buf);
 
          //gerer la notion de public ici
-         if ( (peer_num = isPeerV6(peer_buf,sock_id)) < 0 ) {
+         if ( (peer_num = isPeer(peer_buf,sock_id)) < 0 ) {
 
              fprintf(stderr,"ERROR: REMOTE HOST NOT In PEERS LIST\n");
              close(sock_id);
