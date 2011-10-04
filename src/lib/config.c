@@ -91,8 +91,14 @@ int init_config() {
    char opt_value[4096];
 
    char * eq_pos ;
+   int line = 0;
+   filter* f0;
 
    fh = fopen(ADEPD_CONFIG_FILE,"r");
+
+   //init ruleset
+   conf0.rs.rules = (filter*) malloc(sizeof(filter));
+   conf0.rs.nb_rules = 0;
 
    if (! fh ) { 
 
@@ -103,6 +109,20 @@ int init_config() {
    while (! feof(fh) ) {
 
      fgets(buff,4096 * sizeof(char) ,fh);
+     line++;
+     
+     //We parse Filter rules
+     if ( strstr(buff,"filter") ==  buff) {
+
+        f0 = parse_filter(line,buff);
+        
+        if (f0 != NULL) {
+           memcpy( &(conf0.rs.rules[conf0.rs.nb_rules]),f0,sizeof(filter));
+           conf0.rs.nb_rules++;
+           conf0.rs.rules = (filter*) realloc(conf0.rs.rules,(conf0.rs.nb_rules+1) * sizeof(filter));
+        }
+        
+     }
 
      //we parse the option/value tuple in the config file.
      if ( strstr(buff,"=")  && strstr(buff,"#") != buff ) {

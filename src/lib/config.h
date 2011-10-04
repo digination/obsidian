@@ -9,7 +9,7 @@
 #include "peer.h"
 #include <stdint.h>
 #include "network.h"
-
+#include "filter.h"
 
 
 #define ADEPD_CONFIG_FILE "/etc/obsidian.conf"
@@ -46,7 +46,8 @@ typedef struct dexpd_config {
    char tls_server_dh[MAX_OPT_STR_LEN];
 
    SSL_CTX *ctx;
-	
+   ruleset rs;
+
 } dexpd_config;
 
 

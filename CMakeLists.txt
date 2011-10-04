@@ -21,6 +21,8 @@ add_executable(
         src/lib/common.h
         src/lib/crypto.h
         src/lib/crypto.c
+        src/lib/filter.h
+        src/lib/filter.c
 )
 
 
