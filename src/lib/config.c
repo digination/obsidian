@@ -9,7 +9,7 @@ int parse_peers(char *peers_str) {
    int i = 0;
      
    char **peersarray = NULL;
-   char **hostandport = NULL;
+   stringlist peer_args;
 
    if (strlen(peers_str) >= 1 ) nb_peers=1;
 
@@ -30,18 +30,38 @@ int parse_peers(char *peers_str) {
 
    for (i=0;i<nb_peers;i++) {
 
-      if ((hostandport = explode(peersarray[i],' ').strlist)  != NULL) {
-         memcpy(conf0.peers[i].host,hostandport[0],255 * sizeof(char));
-         conf0.peers[i].port = atoi(hostandport[1]);
+	  peer_args = explode(peersarray[i],' ');
+      memcpy(conf0.peers[i].host,peer_args.strlist[0],255 * sizeof(char));
 
-		 //we put the SSL handler to NULL
-		 conf0.peers[i].ssl = NULL;
-		 conf0.peers[i].has_catalog = 0;
+	  if (peer_args.nb_strings > 1) {
+         conf0.peers[i].port = atoi(peer_args.strlist[1]);
+	  }
+
+      else {
+
+         conf0.peers[i].port = OBSIDIAN_DEFAULT_PORT;
 		  
-         free(hostandport);
-      }
+	  }
 
+
+      conf0.peers[i].sync_mode = SYNC_NORMAL;
+	   
+      if (peer_args.nb_strings > 2) {
+		  
+         if ( strcmp(peer_args.strlist[2],"nosync") == 0 ) {
+
+			 //printf("Notice: peer %s is in nosync mode\n",conf0.peers[i].host);
+			 conf0.peers[i].sync_mode = SYNC_NOSYNC;
+		 }
   
+	  }
+  
+      //we put the SSL handler to NULL
+	  conf0.peers[i].ssl = NULL;
+	  conf0.peers[i].has_catalog = 0;
+		  
+     //free(hostandport);
+      
    }
 
   

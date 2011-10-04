@@ -459,6 +459,7 @@ void *session_thread_serv(void * p_input) {
      }
 
 
+	 /*
      if (current_peer->mode != DEXPMODE_BUSY && ! current_peer->has_catalog) {
 
         printf ("GETCAT!\n");
@@ -469,6 +470,7 @@ void *session_thread_serv(void * p_input) {
         current_peer->mode = DEXPMODE_IDLE;
 
      }
+	 */
 
 
   }
@@ -705,10 +707,17 @@ void *session_thread_cli(void * p_input) {
       current_peer->ssl =  (SSL*) start_tls_cli(current_peer->socknum);
    }
 
+  if (current_peer->sync_mode == SYNC_NORMAL) {
+     dexp_send(current_peer,"GET_CATALOG\r\n",14);
+     catalog_str = receive_catalog(current_peer);
+  }
 
-  dexp_send(current_peer,"GET_CATALOG\r\n",14);
-  catalog_str = receive_catalog(current_peer);
+  else {
 
+    printf("skipping initial synchronization with peer %s...\n",current_peer->host);
+	  
+  }
+	  
   if (catalog_str != NULL) {
 
      hq0 = register_hashes(catalog_str,hq0,&nb_hq);
@@ -774,7 +783,7 @@ void* keepalive_thread() {
       }
 
      //setsockopt SO_KEEPALIVE ??
-     if ( !recv(conf0.peers[i].socknum,io_buffer,sizeof(io_buffer)) ) {
+     if ( !recv(conf0.peers[i].socknum,io_buffer,sizeof(io_buffer),0) ) {
 
         conf0.peers[i].socknum = -1;
         pthread_kill(conf0.peers[i].thread);
