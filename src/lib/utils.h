@@ -20,5 +20,6 @@ int setZero(char *);
 int setZeroN(char *,int);
 char* trim(char*);
 int strippable(char c);
+int stricmp(const char* s1, const char* s2);
 
 #endif
