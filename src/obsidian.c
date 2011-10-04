@@ -8,17 +8,40 @@ int isPeer(char *peer_str,int sock_fd) {
    char ip_str[40];
    struct addrinfo *ainfo;
 
+   
+
    for (i=0;i<conf0.nb_peers;i++) {
 
-      if ( (getaddrinfo(conf0.peers[i].host,NULL,NULL,&ainfo)) > 0 ) {
-      
-          inet_ntop(ainfo->ai_family,&(ainfo->ai_addr->sa_data), ip_str,39*sizeof(char));
-         if ( strcmp(ip_str,peer_str) == 0 ) {
-           conf0.peers[i].socknum = sock_fd;
-           return i;
+      if ( (getaddrinfo(conf0.peers[i].host,NULL,NULL,&ainfo)) == 0 ) {        
+
+         if (ainfo->ai_family == AF_INET6) {
+
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)ainfo->ai_addr;
+            inet_ntop(ainfo->ai_family,&(ipv6->sin6_addr), ip_str,39*sizeof(char));
+
          }
 
-       }
+         else {
+
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)ainfo->ai_addr;
+            inet_ntop(ainfo->ai_family,&(ipv4->sin_addr), ip_str,39*sizeof(char));
+
+         }
+
+     }
+
+     else {
+
+      strncpy(ip_str,conf0.peers[i].host,39*sizeof(char));
+     
+     }
+
+      if ( strcmp(ip_str,peer_str) == 0 ) {
+           conf0.peers[i].socknum = sock_fd;
+           return i;
+      }
+
+
 
    }
      
