@@ -124,7 +124,7 @@ int announce(char *hash) {
      
       if (conf0.peers[i].socknum > 0 && conf0.peers[i].mode != DEXPMODE_BUSY ) {
 
-         dexp_send(conf0.peers[i],io_buffer,strlen(io_buffer));
+         dexp_send(&(conf0.peers[i]),io_buffer,strlen(io_buffer));
 
       }
 
