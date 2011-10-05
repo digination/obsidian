@@ -23,6 +23,7 @@ add_executable(
         src/lib/crypto.c
         src/lib/filter.h
         src/lib/filter.c
+        src/lib/statinfos.h
 )
 
 

@@ -1,13 +1,11 @@
 TODO LOW_PRIO
-Implement TLS for secure communication between Nodes
-Implement IPv6 Support
 Implement zlib support to enable gziped data transfers between nodes.
-Support of dirtee synchronization instead of single directory
+Support of dirtee synchronization instead of single directory (depth 1)
 
 TODO HIGH_PRIO
 Implement Locks on sockets/ hashqueues announces flushing
 Implemment logging function
 implement tcp session watchers to check connectivity between nodes
-Implement fetching of metadata
-Implement filters on metadata
+Implement stat command
+Implement filters
 
