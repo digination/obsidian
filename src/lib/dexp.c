@@ -599,9 +599,19 @@ int fetch_doc(peer *cpeer,char* hash) {
          }
 
          printf("IO_BUFFER: %s\n",io_buffer);
-         
 
+         
          doc_params = explode(io_buffer,':');
+
+         if ( doc_params.nb_strings < 3 ) return -1;
+
+         //security, to avoid passing doc headers containing cannonical paths and/or/ upper directory references.
+         if ( strstr(doc_params.strlist[1],"/") == doc_params.strlist[1] ||\
+              strstr(doc_params.strlist[1],"../") != NULL ) {
+              
+            return -2;
+         }
+
 
          setZero(file_path);
          strncpy(file_path,conf0.tmp_dir,sizeof(file_path));
