@@ -256,7 +256,14 @@ int dexp_recv(peer* cpeer,void* dest,int destlen) {
        len = recv(cpeer->socknum,dest,destlen,0);
 		
 	}
-	
+
+   //our socket is disconnected
+   if (len < 0) { 
+      cpeer->socknum = -1;
+      //pthread_kill(&(cpeer->thread));
+      printf ("HOST %s Disconnected\n",cpeer->host);
+   }
+
    return len;
 	
 }
