@@ -271,8 +271,3 @@ int dexp_recv(peer* cpeer,void* dest,int destlen) {
    return len;
 	
 }
-
-
-
-
-

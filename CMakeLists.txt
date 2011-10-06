@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 
 project(obsidian)
 
+
+SET (CMAKE_C_FLAGS "-g -fPIE")
+
 #Déclaration de l'exécutable
 add_executable(
 	obsidian

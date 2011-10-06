@@ -1,36 +1,5 @@
 #include "dexp.h"
 
-/*
-int has_document(char *hash ,char **hash_array,int nb_hash) {
-
-   int i = 0;
-
-   for (i=0;i<nb_hash;i++) {
-
-       if strcmp(hash,hash_array[i]) == 0 {
-          return 1;
-       }
-   } 
-   return 0;
-}
-
-
-
-int parse_cmd(char* rcv,char **hash_array,int nb_hash) {
-
-  if (strstr(rcv,GET_METADATA) == rcv ) {
-
-    
-     if (has_document() )    
-
-  }
-
-}
-*/
-
-
-
-
 int sendInfos (peer* cpeer) {
 
    extern dexpd_config conf0;
@@ -149,8 +118,6 @@ int announce(char *hash) {
    setZeroN(io_buffer,4096);
 
 }
-
-
 
 int sendDoc(peer* cpeer,char *hash) {
 
@@ -280,6 +247,9 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
   stringlist str0;
   str0 = explode(input,' ');
+  char* catalog_str;
+  hash_queue *hq0;
+  int nb_hq;
 
   //printf("NB_ARGS: %d\n",str0.nb_strings);
     
@@ -299,12 +269,33 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     }    
 
-     else if (strstr( str0.strlist[0] , DEXP_GETCATALOG ) == str0.strlist[0] ) {
+    else if (strstr( str0.strlist[0] , DEXP_GETCATALOG ) == str0.strlist[0] ) {
 
        sendCatalog(cpeer);
 
     }
 
+    else if (strcmp( str0.strlist[0], DEXP_READY ) == 0 ) {
+    
+       //retrieve catalog from peer
+       if (cpeer->has_catalog == 0 && cpeer->sync_mode == SYNC_NORMAL) {
+
+           dexp_send(cpeer,"GET_CATALOG\r\n",14);
+           catalog_str = receive_catalog(cpeer);
+
+           if (catalog_str != NULL) {
+              hq0 = register_hashes(catalog_str,hq0,&nb_hq);
+              free(catalog_str);
+              if (nb_hq > 0 ) {
+                fetch_docs(cpeer,hq0,&nb_hq);
+              }
+              cpeer->has_catalog = 1;
+
+           }
+          
+       }
+
+    }
 
     else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] ) {
 
@@ -315,13 +306,10 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
        } 
 
        process_announce(cpeer,trim(str0.strlist[1]));
-
-
     }
 
 
-
-     else if (strstr( str0.strlist[0] , DEXP_GETDOCUMENT ) == str0.strlist[0] ) {
+    else if (strstr( str0.strlist[0] , DEXP_GETDOCUMENT ) == str0.strlist[0] ) {
 
        if (str0.nb_strings < 2) {
 
@@ -333,21 +321,13 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     }
 
-   
-    else if (strstr( str0.strlist[0] , DEXP_PING ) == str0.strlist[0] ) {
-
-       dexp_send(cpeer,DEXP_PONG,sizeof(DEXP_PONG),0);
-
-    }
-
-
     else if (strstr( str0.strlist[0] , DEXP_STARTTLS ) == str0.strlist[0] ) {
 
        printf("Starting TLS communication...\n");
        cpeer->ssl = (SSL*) start_tls(socknum);
 
+      
     }
-
 
 
   }
@@ -742,8 +722,8 @@ void *session_thread_cli(void * p_input) {
   }
 
   printf("MODE IDLE \n");
-
   mode = DEXPMODE_IDLE;
+  dexp_send(current_peer,DEXP_READY,sizeof(DEXP_READY));
 
   while(current_peer->socknum != -1) {
 
@@ -769,47 +749,3 @@ void *session_thread_cli(void * p_input) {
   }
 
 }
-
-
-
-
-void* keepalive_thread() {
-
-
-  extern dexpd_config conf0;
-  int i;
-  char io_buffer[7];
-
-
-  while(1) {
-
-    for(i=0;i<conf0.nb_peers;i++) {
-
-
-       if (conf0.peers[i].mode != DEXPMODE_BUSY) {
-
-         dexp_send(conf0.peers[i],DEXP_PING,sizeof(DEXP_PING));
-
-      }
-
-     //setsockopt SO_KEEPALIVE ??
-     if ( !recv(conf0.peers[i].socknum,io_buffer,sizeof(io_buffer),0) ) {
-
-        conf0.peers[i].socknum = -1;
-        //pthread_kill(conf0.peers[i].thread);
-        printf("Peer %s dosconnected\n", conf0.peers[i].host);
-
-     }
-
-    }
-
-  }
-
-
-  sleep(conf0.keepalive_timeout);
-
-
-}
-
-
-

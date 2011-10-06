@@ -12,9 +12,7 @@ int take_decision(peer* cpeer,struct stat_infos* si) {
 
      if (strcmp(cpeer->host,conf0.rs.rules[i].from) == 0 ) {
 
-
        rs_contextual.nb_rules++;
-
 
      }
 

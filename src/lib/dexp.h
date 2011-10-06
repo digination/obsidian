@@ -13,18 +13,14 @@
 
 //Queries
 #define DEXP_GETDOCUMENT "GET_DOCUMENT"
-#define DEXP_STAT "STAT"
 #define DEXP_GETINFOS "GET_INFOS\r\n"
 #define DEXP_GETCAPA "GET_CAPA\r\n"
 #define DEXP_GETCATALOG "GET_CATALOG\r\n"
 #define DEXP_ANNOUNCE "ANNOUNCE"
-#define DEXP_PING "PING\r\n"
 #define DEXP_STARTTLS "STARTTLS\r\n"
 
-
-//Responses
-#define DEXP_PONG "PONG\r\n"
-
+//notifications
+#define DEXP_READY "READY\r\n"
 
 //Modes
 #define DEXPMODE_IDLE 0x00
@@ -36,6 +32,7 @@
 
 //Headers
 #define DEXPHEAD_CATALOG  "CATALOG"
+
 
 #define BEGIN_XFR "BEGIN_XFR"
 #define END_XFR "END_XFR"
@@ -59,6 +56,9 @@ void* keepalive_thread();
 int announce(char*);
 int process_announce(peer*,char*);
 int fetch_doc(peer*,char*);
+char* receive_catalog(peer*);
+hash_queue* register_hashes(char *,hash_queue*,int*);
+void fetch_docs(peer*,hash_queue*,int*);
 
 
 #endif
