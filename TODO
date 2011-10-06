@@ -5,7 +5,6 @@ Support of dirtee synchronization instead of single directory (depth 1)
 TODO HIGH_PRIO
 Implement Locks on sockets/ hashqueues announces flushing
 Implemment logging function
-implement tcp session watchers to check connectivity between nodes
 Implement stat command
 Implement filters
 

@@ -236,7 +236,12 @@ int dexp_send(peer* cpeer,void* data,int datalen) {
 		
 	}
 
-   
+   //our socket is disconnected
+   if (len <= 0) { 
+      cpeer->socknum = -1;
+      printf ("HOST %s Disconnected\n",cpeer->host);
+   }
+
    return len;
 	
 }
@@ -261,7 +266,6 @@ int dexp_recv(peer* cpeer,void* dest,int destlen) {
    if (len <= 0) { 
       cpeer->socknum = -1;
       printf ("HOST %s Disconnected\n",cpeer->host);
-      ///pthread_kill(cpeer->thread,SIGKILL);
    }
    
    return len;
