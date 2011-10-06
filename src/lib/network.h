@@ -11,6 +11,7 @@
 #include <string.h>
 #include "crypto.h"
 #include <netinet/tcp.h>
+#include <signal.h>
 
 #define OBSIDIAN_DEFAULT_PORT 11337
 #define KEEPALIVE_NBRETRIES 2

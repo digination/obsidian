@@ -447,7 +447,7 @@ void *session_thread_serv(void * p_input) {
 
 
 
-  while(1) {
+  while(current_peer->socknum != -1) {
 
      if ( dexp_recv(current_peer,io_buffer,4096*sizeof(char)) > 0 ) {
 
@@ -745,7 +745,7 @@ void *session_thread_cli(void * p_input) {
 
   mode = DEXPMODE_IDLE;
 
-  while(1) {
+  while(current_peer->socknum != -1) {
 
 
      if ( (len = dexp_recv(current_peer,io_buffer,4096*sizeof(char))) > 0 ) {
@@ -796,7 +796,7 @@ void* keepalive_thread() {
      if ( !recv(conf0.peers[i].socknum,io_buffer,sizeof(io_buffer),0) ) {
 
         conf0.peers[i].socknum = -1;
-        pthread_kill(conf0.peers[i].thread);
+        //pthread_kill(conf0.peers[i].thread);
         printf("Peer %s dosconnected\n", conf0.peers[i].host);
 
      }
