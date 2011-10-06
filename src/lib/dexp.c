@@ -280,10 +280,13 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
        //retrieve catalog from peer
        if (cpeer->has_catalog == 0 && cpeer->sync_mode == SYNC_NORMAL) {
 
+           
            dexp_send(cpeer,"GET_CATALOG\r\n",14);
            catalog_str = receive_catalog(cpeer);
 
            if (catalog_str != NULL) {
+              nb_hq = 0;
+              hq0 = (hash_queue*) malloc(1 * sizeof(hash_queue));
               hq0 = register_hashes(catalog_str,hq0,&nb_hq);
               free(catalog_str);
               if (nb_hq > 0 ) {
