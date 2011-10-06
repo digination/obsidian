@@ -1,6 +1,36 @@
 #include "network.h"
 
 
+
+int set_keepalive(int socknum) {
+
+   extern dexpd_config conf0;
+
+   int nbr = KEEPALIVE_NBRETRIES;
+   int real_interval = conf0.keepalive_timeout / nbr;
+   int ka = 1;
+
+   
+   if ( setsockopt(socknum,SOL_SOCKET,SO_KEEPALIVE,&ka,sizeof(int))  < 0 ) {
+     return -1;
+   }
+
+   if ( setsockopt(socknum,SOL_TCP,TCP_KEEPCNT,&nbr,
+   sizeof(KEEPALIVE_NBRETRIES))  < 0 ) {
+     return -2;
+   }
+
+   if ( setsockopt(socknum,SOL_TCP,TCP_KEEPINTVL,&real_interval,
+   sizeof(real_interval))  < 0 ) {
+     return -2;
+   }
+
+   return 0;
+   
+
+}
+
+
 int create_socket(char *addr,int port) {
 
     int sock;
@@ -23,16 +53,17 @@ int create_socket(char *addr,int port) {
         sin.sin_addr.s_addr = inet_addr(addr);
     }
 
-
     sin.sin_family=AF_INET;
     sin.sin_port=htons(port);
     setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,
       &val,sizeof(val));
+
+    if (set_keepalive(sock) < 0) {
+       fprintf(stderr,"ERROR: CANNOT ASSIGN KEEPALIVE OPTIONS TO SOCKET");
+    }
     
     if(bind(sock,(struct sockaddr *)&sin,sizeof(sin))<0) {
-
         fprintf(stderr,"ERROR: CANNOT BIND SOCKET ON %s:%d\n",addr,port);
-
     }
 
     listen(sock,5);  
@@ -84,6 +115,12 @@ int create_socket_v6(char *addr,int port) {
     sin6->sin6_port=htons(port);
     setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,
       &val,sizeof(val));
+
+
+    if (set_keepalive(sock) < 0) {
+       fprintf(stderr,"ERROR: CANNOT ASSIGN KEEPALIVE OPTIONS TO SOCKET");
+    }
+
     
     if(bind(sock,(struct sockaddr *)sin6,sizeof(ss))<0) {
 
@@ -124,6 +161,9 @@ int pconnect6(char* host,int portno) {
 
   serv_addr->sin6_port = htons(portno);
 
+  if (set_keepalive(sockfd) < 0) {
+       fprintf(stderr,"ERROR: CANNOT ASSIGN KEEPALIVE OPTIONS TO SOCKET");
+  }
 
   if (connect(sockfd,(struct sockaddr *) serv_addr,sizeof(ss)) < 0) {
         return -3;
@@ -159,6 +199,10 @@ int pconnect(char* host,int portno) {
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
+
+  if (set_keepalive(sockfd) < 0) {
+       fprintf(stderr,"ERROR: CANNOT ASSIGN KEEPALIVE OPTIONS TO SOCKET");
+  }
 
 
   if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
