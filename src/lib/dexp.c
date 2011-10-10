@@ -77,6 +77,34 @@ int sendCatalog(peer *cpeer) {
 
 
 
+int flushAnnounceQueue(peer* cpeer) {
+
+  int qpos = qpos = cpeer->an_queuesize;
+  char ** anqueue = cpeer->announce_queue;
+  int i = 0;  
+  char announce[76];
+  
+
+  while ( i < qpos && cpeer->lock == 0) {
+
+     setZeroN(announce,76);
+     strncpy(announce,"ANNOUNCE ",sizeof(announce));
+     strncat(announce,anqueue[i],sizeof(announce) - strlen(announce));
+     strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
+     
+     dexp_send(cpeer,announce,strlen(announce));
+     i++;
+
+  }
+
+  strshift(cpeer->announce_queue, i);
+  cpeer->an_queuesize -= i;
+  return 0;
+
+}
+
+
+
 int announce(char *hash) {
 
    extern dexpd_config conf0;
@@ -91,13 +119,13 @@ int announce(char *hash) {
 
    for (i=0;i<conf0.nb_peers;i++) {
      
-      if (conf0.peers[i].socknum > 0 && conf0.peers[i].mode != DEXPMODE_BUSY ) {
+      if (conf0.peers[i].socknum > 0 && conf0.peers[i].lock != 1 ) {
 
          dexp_send(&(conf0.peers[i]),io_buffer,strlen(io_buffer));
 
       }
 
-      else if ( conf0.peers[i].mode == DEXPMODE_BUSY) {
+      else if ( conf0.peers[i].lock == 1) {
 
          printf("Notice: Peer connection is busy, queuing Announce %s\n",hash);
       
@@ -106,10 +134,7 @@ int announce(char *hash) {
          strncpy(conf0.peers[i].announce_queue[qpos],hash,64*sizeof(char));
          conf0.peers[i].an_queuesize++;
          conf0.peers[i].announce_queue = (char**) realloc(conf0.peers[i].announce_queue,(conf0.peers[i].an_queuesize +1)*sizeof(char*));
-         
-         
-             
-                 
+                     
       }
 
 
@@ -126,7 +151,7 @@ int sendDoc(peer* cpeer,char *hash) {
    char send_buffer[4096];
    char file_path[4096];
    long file_length;
-   char fl_str[200];
+   char fl_str[255];
    int i,j;
    int found = 0;
 
@@ -134,6 +159,8 @@ int sendDoc(peer* cpeer,char *hash) {
    extern dexpd_config conf0;
    extern int nb_cat;
 
+   cpeer->lock = 1;
+   
    for (i=0;i<nb_cat;i++) {
 
      if (strcmp(hash,cat0[i].hash) == 0) {
@@ -149,6 +176,7 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"400 FILE NOT FOUND\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer)+1);
+     cpeer->lock = 0;
      return -1; 
 
    }
@@ -167,7 +195,7 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer));
-     //dexp_send(cpeer,file_path,strlen(file_path));
+     cpeer->lock = 0;
      return -2;
 
 
@@ -187,10 +215,6 @@ int sendDoc(peer* cpeer,char *hash) {
 
    dexp_send(cpeer,send_buffer,strlen(send_buffer));
 
-
-   //DIRTY HACK TO AVOID PACKET REFRAGMENTATION;
-   //sleep(1);
-
    while( ( i = fread( file_buffer, 1, sizeof( file_buffer ), fh ) ) > 0 ) {
 
       dexp_send(cpeer,file_buffer,i);
@@ -201,6 +225,7 @@ int sendDoc(peer* cpeer,char *hash) {
    }
 
    fclose(fh);
+   cpeer->lock = 0;
    return 0;
    
 }
@@ -229,11 +254,12 @@ int process_announce(peer *cpeer,char*hash) {
    if (! found ) {
 
       fetch_doc(cpeer,hash);
-      return -1;
+      dexp_send(cpeer,DEXP_READY,sizeof(DEXP_READY));
+      return 0;
 
    } 
 
-   return 0;
+   return -1;
 
 
 }
@@ -297,6 +323,11 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
            }
           
        }
+
+       else {
+       
+          //flushAnnounceQueue(cpeer);             
+      }
 
     }
 
@@ -529,7 +560,7 @@ int fetch_doc(peer *cpeer,char* hash) {
 
    extern dexpd_config conf0;
 
-   FILE* fh;
+   FILE* fh,*ftest;
    int mode = 0;
    char doc_query[80];
    char io_buffer[4096];   
@@ -599,7 +630,7 @@ int fetch_doc(peer *cpeer,char* hash) {
          setZero(file_path);
          strncpy(file_path,conf0.tmp_dir,sizeof(file_path));
          strncat(file_path,"/",sizeof(file_path) - strlen(file_path));
-         strncat(file_path,doc_params.strlist[1],sizeof(file_path) - strlen(file_path));        
+         strncat(file_path,hash,sizeof(file_path) - strlen(file_path));        
 
    
          setZero(file_dest);
@@ -607,6 +638,12 @@ int fetch_doc(peer *cpeer,char* hash) {
          strncat(file_dest,"/",sizeof(file_dest) - strlen(file_dest));
          strncat(file_dest,doc_params.strlist[1],sizeof(file_dest) - strlen(file_dest));
 
+
+         //dirty Hack to avoid downloading the same file from multiple sources
+         //Solution: The downloads hashqueue must be raised one level up 
+         //(not thread dependant but program dependant)
+         if ( (ftest = fopen ( file_path, "r" ) ) != NULL ) return -3;
+         
          fh = fopen(file_path,"wb");
 
          if (!fh) {

@@ -16,7 +16,7 @@
       uint8_t sync_mode;
 	   
       pthread_t thread;
-      int mode;
+      uint8_t lock;
       char **announce_queue;
       int an_queuesize;
 

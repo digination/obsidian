@@ -151,3 +151,12 @@ int stricmp(const char* s1, const char* s2)
     }
     return cmp;
 }
+
+
+char ** strshift(char** strlist,int shift) {
+
+   
+
+   return strlist;
+
+}
