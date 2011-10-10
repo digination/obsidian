@@ -1,0 +1,25 @@
+#!/bin/sh
+
+PREFIX="/usr/local/obsidian"
+TMP_SSLCONF="$PREFIX/etc/ssl_tmp"
+SSLCONF="$PREFIX/etc/ssl"
+
+
+if [ ! -d $SSLCONF ] ; then
+   mkdir -p $SSLCONF
+fi
+
+if [ ! -d $TMP_SSLCONF ] ; then 
+   mkdir -p $TMP_SSLCONF
+fi
+
+cd $TMP_SSLCONF
+
+openssl genrsa -out $SSLCONF/server.key 2048
+#openssl rsa -in server.key.orig -out $SSLCONF/server.key
+
+openssl req -new -key $SSLCONF/server.key -out server.csr
+openssl x509 -req -days 365 -in server.csr -signkey $SSLCONF/server.key -out $SSLCONF/server.crt && echo "==================================\nSSL configuration generated Successfully. Also Don't forget to enable TLS in obsidian configuration file, by setting use_tls to true"
+
+cd ..
+rm -rf $TMP_SSLCONF

@@ -40,3 +40,7 @@ target_link_libraries(
         ssl
 )
 
+install (TARGETS obsidian DESTINATION bin)
+install (FILES "src/conf/obsidian.conf" DESTINATION etc)
+
+
