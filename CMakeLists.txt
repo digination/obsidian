@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(obsidian)
 
-
 SET (CMAKE_C_FLAGS "-g -fPIE")
 
-#Déclaration de l'exécutable
 add_executable(
 	obsidian
 	src/obsidian.c
@@ -42,5 +40,7 @@ target_link_libraries(
 
 install (TARGETS obsidian DESTINATION bin)
 install (FILES "src/conf/obsidian.conf" DESTINATION etc)
+install (FILES "src/conf/obsidian-documentation-0.1.pdf" DESTINATION doc)
+install (FILES "src/tools/obsidian-mkcert" DESTINATION tools)
 
 
