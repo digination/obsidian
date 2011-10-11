@@ -1,7 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage{multicol}
 \usepackage{url}
-\usepackage{graphics}
+\usepackage{graphicx}
 
 \usepackage{amssymb}
 \textheight 9.0in
@@ -19,9 +19,9 @@
 
 \begin{document}
 \date{}
-\title{\includegraphics{../resources/images/logo_1.png}\textbf{\\}\textbf{\\}\Large \textbf{OBSIDIAN 0.1 DOCUMENTATION
-\\}\vspace{0.5cm}specifications}
-\author{\textbf{Clément Gamé}\\clement(at)digi-nation(dot)com}
+\title{\includegraphics[scale=0.5]{../resources/images/logo_1.png}\textbf{\\}\textbf{\\}\Large \textbf{OBSIDIAN 0.1 DOCUMENTATION
+\\}\vspace{0.5cm}}
+\author{\textbf{Clement Game}\\clement(at)digi-nation(dot)com}
 
 \maketitle
 \thispagestyle{empty}
@@ -58,22 +58,27 @@ version 0.1. This paper is released under CC-by-SA licence. \\\\In ancient times
 Obsidian is a fast-mirroring, Peer-to-Peer software which was specially designed to maintain large file repositories synchronized with each others, featuring very fast changes propagating. \\\\To achieve this, Obsidian use 2 core technologies: Filesystem Events Listening , and a new protocol specially designed for the occasion: DEXP, acronym for Documents EXchange Protocol. With DEXP, Change Notifications are sent directly to the mirroring peers, so they don't have to poll periodically for file changes.\\\\
 
 To illustrate how fast is Obsidian compared to a classical multiple rsync-based system, we can do the math:\\\\
-Let's consider a chain of n peers, each node being synchronized to the next with a periodical rsynch check \[(T_c)\].The time taken by each node to download a change is T_d. In this case, the worst-case propagating time will be:\\\\
+Let's consider a chain of n peers, each node being synchronized to the next with a periodical rsynch check $(T_c)$.The time taken by each node to download a change is $T_d$.
+In this case, the worst-case propagating time will be:\\\\
 
-\[ T_r = \sum_0^n T_d(n) + T_c(n)\]\\\\
-As we can see in this case (rsync) , the more nodes we have, the more time it loses, because of the accumulation the \[T_c\] components.\\\\But in the other case (Obsidian) , the calculation of the maximum propagating time between n nodes is:\\\\
-\[T_r  = \sum_0^n T_d(n)\]\\\\
-So with obisidan, The more nodes you haves, the more efficient it is compared to a periodic-poll based method.If we now consider a T_c constant for each node, we can evaluate the speed gain with: \[T_g = nT_c\], so yes, the bigger is n, the bigger is the gain.
+$ T_r = \sum_0^n T_d(n) + T_c(n) $\\\\
+As we can see in this case (rsync) , the more nodes we have, the more time it loses, because of the accumulation the $T_c$ components.\\\\But in the other case (Obsidian) , the calculation of the maximum propagating time between n nodes is:\\\\
+$ T_r  = \sum_0^n T_d(n) $\\\\
+So with obisidan, The more nodes you haves, the more efficient it is compared to a periodic-poll based method.If we now consider a $T_c$ constant for each node, we can evaluate the speed gain with: $T_g = nT_c$ \\So the bigger is n, the bigger is the gain.
 
 \section{Global Architecture}
 
+This section explains 
+
+
 \section{Software Architecture}
 
+The Software architecture behind Obsidian is quite easy, and fit as the following:\\\\
+
+\begin{center}
+\includegraphics[scale=0.5]{../resources/images/software_arch.png}\end{center}
 \section{Getting Started with Obsidian}
-
 This section describes in detail how to get started with Obsidian, step-by-step and from scratch.
-
-
 \subsection{prerequisites}
 
 In order to build and run Obsidian, you'll need: \\\\
@@ -81,16 +86,21 @@ In order to build and run Obsidian, you'll need: \\\\
 - A GNU/Linux Opérating System, with kernel 2.6.19 or higher.\\
 - The OpenSSL Library plus its headers (libssl-dev) , 0.9.8 or higher.\\
 - Cross-platform make (cmake 2.6 or higher).\\
-- The GNU C compiler ( gcc-4.X ).\\\\
-
+- The GNU C compiler ( gcc-4.X ).\\
+- Git DVCS(to retrieve the source code, if not done yet )\\
 
 \subsection{Fetching the sources}
 
+Here we're assuming that that you haven't fetched the obsidian source code yet. To do that, you will need the GIT DVCS, a well-known .
+
+Once you have git installed on your system, just type:\\
+ 
+\verb|git clone git://github.com/digination/obsidian.git |
 
 
 \subsection{Compilation}
 
-This step explains how to build Obsidian
+This step explains how to build Obsidian from sources
 
 
 \subsection{Installation}
@@ -106,6 +116,12 @@ To install Obsidian, Nothing is more simple. From the Obsidian Root Directory, j
 \subsection{Running multiple sessions of Obsidian on the same server}
 
 In order to circumvence the zero-dir limitation, you can choose to run multiple instances of obsidian at the same time on your server, so your peers can replicate data from the multiple instances.
+
+\section{More on DEXP}
+
+\section{Known Bugs, Limitations}
+
+\section{Special Thanks}
 
 
 \end{document}
