@@ -5,7 +5,6 @@ Software dependancies:
 
 libssl-dev
 inotify ( That's why dexp is for now Linux Only ! )
-libxml2
 
 
 Build Procedure:

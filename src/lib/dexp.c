@@ -731,8 +731,21 @@ void *session_thread_cli(void * p_input) {
   //initialize announce_queue
   current_peer->announce_queue = (char**) malloc(1*sizeof(char*));
   current_peer->an_queuesize = 0;
+
+
+  //retrieve server capacities
+  dexp_recv(current_peer,io_buffer,4096*sizeof(char));
+  parse_capacity(current_peer,io_buffer);
+  setZeroN(io_buffer,4096);
+
   
-  if (conf0.use_tls) {
+  //negotiate sessions parameters
+  negotiate(current_peer);
+
+  
+
+    
+  if (current_peer->capacity.use_tls) {
       send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
       current_peer->ssl =  (SSL*) start_tls_cli(current_peer->socknum);
    }

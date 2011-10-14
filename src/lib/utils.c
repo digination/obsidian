@@ -35,14 +35,13 @@ stringlist explode(char *str, char separator) {
      return res;
   }
  
-
    int  nbstr = 1;
    int  len;
    int  from = 0;
-    int  i;
-    int  j;
-  
-    res.strlist = (char **) malloc(sizeof (char *));
+   int  i;
+   int  j;
+   
+   res.strlist = (char **) malloc(sizeof (char *));
      len = strlen(str);
      for (i = 0; i <= len; ++i)
      {

@@ -7,6 +7,16 @@
    #define SYNC_NORMAL 0x01
    #define SYNC_NOSYNC 0x02
 
+
+
+   typedef struct peer_capacity {
+   
+     uint16_t dexp_version;
+     uint8_t has_ssl;
+
+   } peer_capacity;
+
+
    typedef struct peer {
       char host[512];
       int port;
@@ -19,6 +29,7 @@
       uint8_t lock;
       char **announce_queue;
       int an_queuesize;
+      peer_capacity capacity;
 
    } peer;
 
