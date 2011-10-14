@@ -102,7 +102,7 @@ int receiveNego(peer *cpeer) {
 
          //warning, BoF right here if sent negotiation string doesn't 
          //exceed sizeof(DEXP_NEGO) +1
-         version_ptr += (sizeof(DEXP_NEGOTIATE) + 1);
+         version_ptr += (sizeof(DEXP_NEGOTIATE));
          strncpy(cpeer->capacity.proto,version_ptr,4*sizeof(char));
          
          //debug
