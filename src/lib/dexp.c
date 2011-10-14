@@ -31,7 +31,7 @@ int parse_capacity(peer* cpeer,char* io_buffer) {
 
        for (j=0;j<str1.nb_strings;j++) {
 
-          for (k=nb_proto-1;k>0;k--) {
+          for (k=nb_proto-1;k>=0;k--) {
 
             if (strcmp(str1.strlist[j],supported_proto[k]) == 0) {
 
@@ -45,8 +45,8 @@ int parse_capacity(peer* cpeer,char* io_buffer) {
           strlfree(&str1);
           if (! found_proto) {
 
-             fprintf(stderr,"ERROR: Cannot negociate session with peer %s,\
-             protocol versions mismatch !\n",cpeer->host);
+             fprintf(stderr,"ERROR: Cannot negotiate session with peer %s, protocol versions mismatch !\n"
+             ,cpeer->host);
 
           }
 
@@ -76,6 +76,50 @@ int parse_capacity(peer* cpeer,char* io_buffer) {
 }
 
 
+
+int negotiate(peer* cpeer) {
+
+    char io_buffer[4096];
+    setZeroN(io_buffer,4096);
+    sprintf(io_buffer,"%s %s\r\n",DEXP_NEGOTIATE,cpeer->capacity.proto);
+    dexp_send(cpeer,io_buffer,strlen(io_buffer));
+
+}
+
+
+int receiveNego(peer *cpeer) {
+
+   char io_buffer[4096];
+   char* version_ptr;
+   setZeroN(io_buffer,4096);
+   int len = 0;
+
+   if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+
+      version_ptr = io_buffer;
+
+      if (strstr(version_ptr,DEXP_NEGOTIATE) == io_buffer) {
+
+         //warning, BoF right here if sent negotiation string doesn't 
+         //exceed sizeof(DEXP_NEGO) +1
+         version_ptr += (sizeof(DEXP_NEGOTIATE) + 1);
+         strncpy(cpeer->capacity.proto,version_ptr,4*sizeof(char));
+         
+         //debug
+         printf("%s Session negotiated with peer %s\n",cpeer->capacity.proto,cpeer->host);
+         return 0;
+      }
+
+      else {
+
+         fprintf(stderr,"ERROR: invalid Negotiation string\n");
+         return -1;
+
+      }
+
+   }
+
+}
 
 
 int sendInfos (peer* cpeer) {
@@ -546,9 +590,8 @@ void *session_thread_serv(void * p_input) {
   current_peer->announce_queue = (char**) malloc(1*sizeof(char*));
   current_peer->an_queuesize = 0;
 
-
   sendCapa(current_peer);
-
+  receiveNego(current_peer);
 
   while(current_peer->socknum != -1) {
 
@@ -829,7 +872,7 @@ void *session_thread_cli(void * p_input) {
 
   
   //negotiate sessions parameters
-  //negotiate(current_peer);
+  negotiate(current_peer);
 
   
 

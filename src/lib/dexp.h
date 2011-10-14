@@ -18,6 +18,8 @@
 #define DEXP_GETCATALOG "GET_CATALOG\r\n"
 #define DEXP_ANNOUNCE "ANNOUNCE"
 #define DEXP_STARTTLS "STARTTLS\r\n"
+#define DEXP_NEGOTIATE "NEGOTIATE"
+
 
 //notifications
 #define DEXP_READY "READY\r\n"
@@ -61,6 +63,8 @@ char* receive_catalog(peer*);
 hash_queue* register_hashes(char *,hash_queue*,int*);
 void fetch_docs(peer*,hash_queue*,int*);
 int parse_capacity(peer*,char*);
+int negotiate(peer*);
+int receiveNego(peer*);
 
 #endif
 
