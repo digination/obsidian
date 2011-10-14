@@ -11,8 +11,8 @@
 
    typedef struct peer_capacity {
    
-     uint16_t dexp_version;
-     uint8_t has_ssl;
+     char proto[5];
+     uint8_t has_tls;
 
    } peer_capacity;
 

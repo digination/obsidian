@@ -1,5 +1,83 @@
 #include "dexp.h"
 
+//informations to handle multiple versions/retro-compat
+#define DEXP_VERSIONS_TAG "V1"
+const char* supported_proto[] = {"V1"};
+int nb_proto = 1;
+
+
+int parse_capacity(peer* cpeer,char* io_buffer) {
+
+   stringlist str0;
+   stringlist str1;
+   int i,j,k;
+   char *fv;
+   int found_proto =0;
+
+   extern const char* supported_proto[];
+   extern int nb_proto;
+ 
+   str0  = explode(io_buffer,'\n');
+
+   for (i=0;i<str0.nb_strings;i++) {
+
+     fv = str0.strlist[i];
+
+     //parsing of version
+     if (strstr(fv,"PROTOCOL_VER:") == fv ) {
+     
+       fv += (13 * sizeof(char));
+       str1 = explode(fv,',');
+
+       for (j=0;j<str1.nb_strings;j++) {
+
+          for (k=nb_proto-1;k>0;k--) {
+
+            if (strcmp(str1.strlist[j],supported_proto[k]) == 0) {
+
+               strncpy(cpeer->capacity.proto,supported_proto[k],4*sizeof(char));
+               found_proto = 1;
+               break;
+            }
+
+          }
+
+          strlfree(&str1);
+          if (! found_proto) {
+
+             fprintf(stderr,"ERROR: Cannot negociate session with peer %s,\
+             protocol versions mismatch !\n",cpeer->host);
+
+          }
+
+       }
+
+     }
+     
+     //parsing of TLS VALUE
+     else if (strstr(fv,"HAS_TLS:") == fv ) {
+
+       fv += (8 * sizeof(char));
+
+       if ( strcmp(fv,"TRUE") == 0  ) {
+
+          cpeer->capacity.has_tls = 1;
+
+       }
+
+       else cpeer->capacity.has_tls = 0;
+     }
+
+   }
+
+
+   strlfree(&str0);
+
+}
+
+
+
+
 int sendInfos (peer* cpeer) {
 
    extern dexpd_config conf0;
@@ -27,13 +105,22 @@ int sendCapa (peer *cpeer) {
    extern dexpd_config conf0;
     
    char *capacity = (char*) malloc ( 4096* sizeof(char) );
+   char tls_vv[6];
+   setZeroN(capacity,4096);
 
-   strcpy(capacity,"PROTOCOL:V1\nCRYPTO_LAYER:NONE\n");
-  
+   if (conf0.use_tls == 1) {
+   
+      strncpy(tls_vv,"TRUE",4*sizeof(char));
+   }
+   
+   else strncpy(tls_vv,"FALSE",5*sizeof(char));
+
+   sprintf(capacity,"Obsidian DEXP\nNODE_NAME:%s\nPROTOCOL_VER:%s\nHAS_TLS:%s",conf0.node_name,DEXP_VERSIONS_TAG,tls_vv);
+
    dexp_send(cpeer,capacity,strlen(capacity)) ;
    
-     
-
+   free(capacity);
+   
 }
 
 
@@ -460,6 +547,8 @@ void *session_thread_serv(void * p_input) {
   current_peer->an_queuesize = 0;
 
 
+  sendCapa(current_peer);
+
 
   while(current_peer->socknum != -1) {
 
@@ -740,12 +829,12 @@ void *session_thread_cli(void * p_input) {
 
   
   //negotiate sessions parameters
-  negotiate(current_peer);
+  //negotiate(current_peer);
 
   
 
     
-  if (current_peer->capacity.use_tls) {
+  if (current_peer->capacity.has_tls) {
       send(current_peer->socknum,DEXP_STARTTLS,sizeof(DEXP_STARTTLS),0);
       current_peer->ssl =  (SSL*) start_tls_cli(current_peer->socknum);
    }

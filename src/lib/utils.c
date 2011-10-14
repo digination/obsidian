@@ -61,6 +61,17 @@ stringlist explode(char *str, char separator) {
 }
 
 
+int strlfree(stringlist *str0) {
+
+   int i = 0;
+   for (i=0;i<str0->nb_strings;i++) {
+   
+      free(str0->strlist[i]);
+   }
+
+   free(str0->strlist);
+}
+
 
 int strippable(char c) {
 

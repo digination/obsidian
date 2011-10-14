@@ -46,8 +46,6 @@
 #define SOCK_ANNOUNCE_SEND_MODE 0x03
 #define SOCK_XFR_SEND_MODE 0x04
 
-#define DEXP_VERSION 0x01
-
 
 int has_document(char*,char**,int);
 int parse_cmd(char*,char**,int) ;
@@ -63,10 +61,6 @@ char* receive_catalog(peer*);
 hash_queue* register_hashes(char *,hash_queue*,int*);
 void fetch_docs(peer*,hash_queue*,int*);
 int parse_capacity(peer*,char*);
-
-
-
-
 
 #endif
 
