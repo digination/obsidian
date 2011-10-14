@@ -317,7 +317,7 @@ int sendDoc(peer* cpeer,char *hash) {
    strncat(file_path,"/",STR_BIG_S*sizeof(char) - strlen(file_path));
    strncat(file_path,cat0[i].filename,STR_BIG_S*sizeof(char) - strlen(file_path));
 
-   printf("%s\n",file_path);
+   printf(":%s\n",file_path);
 
    fh = fopen(file_path,"rb");
    setZero(file_path);
