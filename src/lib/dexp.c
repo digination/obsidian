@@ -96,7 +96,7 @@ int receiveNego(peer *cpeer) {
 
    if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
 
-      version_ptr = io_buffer;
+      version_ptr = trim(io_buffer);
 
       if (strstr(version_ptr,DEXP_NEGOTIATE) == io_buffer) {
 
