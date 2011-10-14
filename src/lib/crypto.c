@@ -96,7 +96,7 @@ void generate_eph_rsa_key(SSL_CTX *ctx)
   {
     RSA *rsa;
 
-    rsa=RSA_generate_key(512,RSA_F4,NULL,NULL);
+    rsa=RSA_generate_key(STR_REG_S,RSA_F4,NULL,NULL);
     
     if (!SSL_CTX_set_tmp_rsa(ctx,rsa))
       berr_exit("Couldn't set RSA key");

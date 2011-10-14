@@ -10,7 +10,7 @@
 #include "statinfos.h"
 #include <stdint.h>
 
-#define MAX_FILTER_STRLEN 512
+#define MAX_FILTER_STRLEN STR_REG_S
 
 
 #define FILTER_ACT_ALLOW 0x01

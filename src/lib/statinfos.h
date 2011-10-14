@@ -1,7 +1,9 @@
 #ifndef STATINFOS_H
 #define STATINFOS_H
 
-#define SINFO_MAX_STRLEN 4096
+#include "common.h"
+
+#define SINFO_MAX_STRLEN STR_BIG_S
 
 struct stat_infos {
 

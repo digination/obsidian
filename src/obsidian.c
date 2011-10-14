@@ -163,7 +163,7 @@ int load_catalog(char* data_dir_str) {
    SHA256_CTX context;
    unsigned char md[SHA256_DIGEST_LENGTH];
    FILE *fh;
-   char fto[4096];
+   char fto[STR_BIG_S];
    char buf[256];
    char hexpart[3];
    int i =0;
@@ -190,9 +190,9 @@ int load_catalog(char* data_dir_str) {
 
         strncpy(cat0[nb_cat].filename,DirEntry->d_name,254* sizeof(char));
 
-        strncpy(fto,data_dir_str,4096 * sizeof(char));
-        strncat(fto,"/",4096 * sizeof(char) - strlen(fto) );
-        strncat(fto,DirEntry->d_name,4096 * sizeof(char) - strlen(fto) );
+        strncpy(fto,data_dir_str,STR_BIG_S * sizeof(char));
+        strncat(fto,"/",STR_BIG_S * sizeof(char) - strlen(fto) );
+        strncat(fto,DirEntry->d_name,STR_BIG_S * sizeof(char) - strlen(fto) );
 
         SHA256_Init(&context);
 

@@ -31,7 +31,7 @@ int parse_peers(char *peers_str) {
    for (i=0;i<nb_peers;i++) {
 
 	  peer_args = explode(peersarray[i],' ');
-      memcpy(conf0.peers[i].host,peer_args.strlist[0],255 * sizeof(char));
+      memcpy(conf0.peers[i].host,peer_args.strlist[0],STR_SMALL_S * sizeof(char));
 
 	  if (peer_args.nb_strings > 1) {
          conf0.peers[i].port = atoi(peer_args.strlist[1]);
@@ -86,9 +86,9 @@ int init_config() {
    extern dexpd_config conf0;
 
    FILE *fh;
-   char buff[4096];
-   char opt_name[4096];
-   char opt_value[4096];
+   char buff[STR_BIG_S];
+   char opt_name[STR_BIG_S];
+   char opt_value[STR_BIG_S];
 
    char * eq_pos ;
    int line = 0;
@@ -108,7 +108,7 @@ int init_config() {
 
    while (! feof(fh) ) {
 
-     fgets(buff,4096 * sizeof(char) ,fh);
+     fgets(buff,STR_BIG_S * sizeof(char) ,fh);
      line++;
      
      //We parse Filter rules
@@ -179,7 +179,7 @@ int init_config() {
 
         else if (strcmp(opt_name,"node_location") == 0 ) {
 
-           memcpy(conf0.node_location,opt_value,255 * sizeof(char));           
+           memcpy(conf0.node_location,opt_value,STR_SMALL_S * sizeof(char));           
         }
 
         else if (strcmp(opt_name,"use_tls") == 0 ) {

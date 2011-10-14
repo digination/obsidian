@@ -79,8 +79,8 @@ int parse_capacity(peer* cpeer,char* io_buffer) {
 
 int negotiate(peer* cpeer) {
 
-    char io_buffer[4096];
-    setZeroN(io_buffer,4096);
+    char io_buffer[STR_BIG_S];
+    setZeroN(io_buffer,STR_BIG_S);
     sprintf(io_buffer,"%s %s\r\n",DEXP_NEGOTIATE,cpeer->capacity.proto);
     dexp_send(cpeer,io_buffer,strlen(io_buffer));
 
@@ -89,12 +89,12 @@ int negotiate(peer* cpeer) {
 
 int receiveNego(peer *cpeer) {
 
-   char io_buffer[4096];
+   char io_buffer[STR_BIG_S];
    char* version_ptr;
-   setZeroN(io_buffer,4096);
+   setZeroN(io_buffer,STR_BIG_S);
    int len = 0;
 
-   if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+   if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S*sizeof(char))) > 0 ) {
 
       version_ptr = trim(io_buffer);
 
@@ -126,7 +126,7 @@ int sendInfos (peer* cpeer) {
 
    extern dexpd_config conf0;
     
-   char *infos = (char*) malloc ( (strlen(conf0.node_name) + strlen(conf0.node_descr) + strlen(conf0.node_location) + 512 ) * sizeof(char) );
+   char *infos = (char*) malloc ( (strlen(conf0.node_name) + strlen(conf0.node_descr) + strlen(conf0.node_location) + STR_REG_S ) * sizeof(char) );
 
    strcpy(infos,"Node Name: ");
    strcat(infos,conf0.node_name);
@@ -148,9 +148,9 @@ int sendCapa (peer *cpeer) {
 
    extern dexpd_config conf0;
     
-   char *capacity = (char*) malloc ( 4096* sizeof(char) );
+   char *capacity = (char*) malloc ( STR_BIG_S* sizeof(char) );
    char tls_vv[6];
-   setZeroN(capacity,4096);
+   setZeroN(capacity,STR_BIG_S);
 
    if (conf0.use_tls == 1) {
    
@@ -175,7 +175,7 @@ int sendCatalog(peer *cpeer) {
    extern int nb_cat;
 
    int i ,j;
-   char *cat_header = (char*) malloc (4096* sizeof(char));
+   char *cat_header = (char*) malloc (STR_BIG_S* sizeof(char));
    char cat_chunk[521];
 
 
@@ -240,13 +240,13 @@ int announce(char *hash) {
 
    extern dexpd_config conf0;
    int i;   
-   char io_buffer[4096];
+   char io_buffer[STR_BIG_S];
 
    int qpos;
 
    strcpy(io_buffer,"ANNOUNCE ");
-   strncat(io_buffer,hash,4096*sizeof(char) - strlen(io_buffer) );
-   strncat(io_buffer,"\r\n",4096*sizeof(char) - strlen(io_buffer) );
+   strncat(io_buffer,hash,STR_BIG_S*sizeof(char) - strlen(io_buffer) );
+   strncat(io_buffer,"\r\n",STR_BIG_S*sizeof(char) - strlen(io_buffer) );
 
    for (i=0;i<conf0.nb_peers;i++) {
      
@@ -271,7 +271,7 @@ int announce(char *hash) {
 
    }
 
-   setZeroN(io_buffer,4096);
+   setZeroN(io_buffer,STR_BIG_S);
 
 }
 
@@ -279,10 +279,10 @@ int sendDoc(peer* cpeer,char *hash) {
 
    FILE *fh;
    char file_buffer[1000];
-   char send_buffer[4096];
-   char file_path[4096];
+   char send_buffer[STR_BIG_S];
+   char file_path[STR_BIG_S];
    long file_length;
-   char fl_str[255];
+   char fl_str[STR_SMALL_S];
    int i,j;
    int found = 0;
 
@@ -313,9 +313,9 @@ int sendDoc(peer* cpeer,char *hash) {
    }
    
    
-   strncat(file_path,conf0.data_dir,4096*sizeof(char));
-   strncat(file_path,"/",4096*sizeof(char) - strlen(file_path));
-   strncat(file_path,cat0[i].filename,4096*sizeof(char) - strlen(file_path));
+   strncat(file_path,conf0.data_dir,STR_BIG_S*sizeof(char));
+   strncat(file_path,"/",STR_BIG_S*sizeof(char) - strlen(file_path));
+   strncat(file_path,cat0[i].filename,STR_BIG_S*sizeof(char) - strlen(file_path));
 
    printf("%s\n",file_path);
 
@@ -503,8 +503,8 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
 char* receive_catalog(peer* cpeer) {
 
-  char io_buffer[4096];
-  char cat_part[4096];
+  char io_buffer[STR_BIG_S];
+  char cat_part[STR_BIG_S];
   int len;
   char *head_end_ptr;
   int header_len;
@@ -516,7 +516,7 @@ char* receive_catalog(peer* cpeer) {
   int i;
 
 
-  if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+  if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S*sizeof(char))) > 0 ) {
 
         if (strstr(io_buffer,"CATALOG") == io_buffer ) {
 
@@ -530,7 +530,7 @@ char* receive_catalog(peer* cpeer) {
 
          if (catpart_len > 0) {
             memcpy(cat_part,head_end_ptr+2,sizeof(char) * catpart_len);    
-            for(i=header_len;i<4096;i++) {
+            for(i=header_len;i<STR_BIG_S;i++) {
               io_buffer[i] = '\0';
             }            
          }
@@ -557,8 +557,8 @@ char* receive_catalog(peer* cpeer) {
 
          while(xfr_size < cat_len) {
 
-            setZeroN(io_buffer,4096);
-            len = dexp_recv(cpeer,io_buffer,4096*sizeof(char));
+            setZeroN(io_buffer,STR_BIG_S);
+            len = dexp_recv(cpeer,io_buffer,STR_BIG_S*sizeof(char));
             strncat(catalog_str,io_buffer,cat_len*sizeof(char) - strlen(catalog_str));         
             xfr_size += len;
 
@@ -584,7 +584,7 @@ void *session_thread_serv(void * p_input) {
   int i;
   pthread_detach(pthread_self());
 
-  io_buffer = (void*) malloc(4096*sizeof(char));
+  io_buffer = (void*) malloc(STR_BIG_S*sizeof(char));
 
   //initialize announce_queue
   current_peer->announce_queue = (char**) malloc(1*sizeof(char*));
@@ -595,7 +595,7 @@ void *session_thread_serv(void * p_input) {
 
   while(current_peer->socknum != -1) {
 
-     if ( dexp_recv(current_peer,io_buffer,4096*sizeof(char)) > 0 ) {
+     if ( dexp_recv(current_peer,io_buffer,STR_BIG_S*sizeof(char)) > 0 ) {
 
         //printf("%s\n",(char*) io_buffer);
 
@@ -695,7 +695,7 @@ int fetch_doc(peer *cpeer,char* hash) {
    FILE* fh,*ftest;
    int mode = 0;
    char doc_query[80];
-   char io_buffer[4096];   
+   char io_buffer[STR_BIG_S];   
    void* file_part;
    char *head_end_ptr;
 
@@ -717,13 +717,13 @@ int fetch_doc(peer *cpeer,char* hash) {
    //printf("QUERY: %s",doc_query);
 
    dexp_send(cpeer,doc_query,strlen(doc_query));
-   setZeroN(io_buffer,4096);
+   setZeroN(io_buffer,STR_BIG_S);
 
-   file_part = (void*) malloc(4096*sizeof(char));
-   setZeroN((char*)file_part,4096);
+   file_part = (void*) malloc(STR_BIG_S*sizeof(char));
+   setZeroN((char*)file_part,STR_BIG_S);
 
    
-   if ( (len = dexp_recv(cpeer,io_buffer,4096 * sizeof(char))) > 0 ) {
+   if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S * sizeof(char))) > 0 ) {
      
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
@@ -738,7 +738,7 @@ int fetch_doc(peer *cpeer,char* hash) {
 
          if (fpart_len> 0) {
             memcpy(file_part,head_end_ptr+2,sizeof(char) * fpart_len);    
-            for(i=header_len;i<4096;i++) {
+            for(i=header_len;i<STR_BIG_S;i++) {
               io_buffer[i] = '\0';
             }            
 
@@ -795,18 +795,18 @@ int fetch_doc(peer *cpeer,char* hash) {
 
          }
 
-         setZeroN(io_buffer,4096);
+         setZeroN(io_buffer,STR_BIG_S);
          while(xfr_len < file_len) {
 
 
-            if ( (len = dexp_recv(cpeer,io_buffer,4096*sizeof(char))) > 0 ) {
+            if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S*sizeof(char))) > 0 ) {
 
               fwrite(io_buffer,1,len * sizeof(char),fh);
               xfr_len +=len;
 
             }
 
-            setZeroN(io_buffer,4096);
+            setZeroN(io_buffer,STR_BIG_S);
 
          }
 
@@ -839,7 +839,7 @@ void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
 void *session_thread_cli(void * p_input) {
 
   peer* current_peer = (peer*) p_input;
-  char io_buffer[4096];
+  char io_buffer[STR_BIG_S];
 
   stringlist str0;
   int catalog_size = 0;
@@ -866,9 +866,9 @@ void *session_thread_cli(void * p_input) {
 
 
   //retrieve server capacities
-  dexp_recv(current_peer,io_buffer,4096*sizeof(char));
+  dexp_recv(current_peer,io_buffer,STR_BIG_S*sizeof(char));
   parse_capacity(current_peer,io_buffer);
-  setZeroN(io_buffer,4096);
+  setZeroN(io_buffer,STR_BIG_S);
 
   
   //negotiate sessions parameters
@@ -913,7 +913,7 @@ void *session_thread_cli(void * p_input) {
   while(current_peer->socknum != -1) {
 
 
-     if ( (len = dexp_recv(current_peer,io_buffer,4096*sizeof(char))) > 0 ) {
+     if ( (len = dexp_recv(current_peer,io_buffer,STR_BIG_S*sizeof(char))) > 0 ) {
 
          switch(mode) {
 
@@ -929,7 +929,7 @@ void *session_thread_cli(void * p_input) {
 
      }
 
-     setZeroN(io_buffer,4096);
+     setZeroN(io_buffer,STR_BIG_S);
      
   }
 

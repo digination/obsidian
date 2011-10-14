@@ -12,7 +12,7 @@ char* add_hash(char *filename) {
 
   SHA256_CTX context;
   unsigned char md[SHA256_DIGEST_LENGTH];
-  char buf[512];
+  char buf[STR_REG_S];
   char hexpart[3];
 
 

@@ -13,7 +13,7 @@
 
 
 #define ADEPD_CONFIG_FILE "/etc/obsidian.conf"
-#define MAX_OPT_STR_LEN 4096
+#define MAX_OPT_STR_LEN STR_BIG_S
 
 
 typedef struct dexpd_config {
@@ -29,7 +29,7 @@ typedef struct dexpd_config {
 
    char node_name[MAX_OPT_STR_LEN];
    char node_descr[MAX_OPT_STR_LEN*2];
-   char node_location[255];
+   char node_location[STR_SMALL_S];
    int keepalive_timeout;
 
    uint8_t log_level;

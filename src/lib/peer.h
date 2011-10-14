@@ -3,6 +3,7 @@
    #define PEER_H
    #include <openssl/ssl.h>
    #include <stdint.h>
+   #include "common.h"
 
    #define SYNC_NORMAL 0x01
    #define SYNC_NOSYNC 0x02
@@ -18,7 +19,7 @@
 
 
    typedef struct peer {
-      char host[512];
+      char host[STR_REG_S];
       int port;
       int socknum;
       SSL* ssl;
