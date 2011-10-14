@@ -312,8 +312,8 @@ int sendDoc(peer* cpeer,char *hash) {
 
    }
    
-   
-   strncat(file_path,conf0.data_dir,STR_BIG_S*sizeof(char));
+   setZeroN(file_path);
+   strncpy(file_path,conf0.data_dir,STR_BIG_S*sizeof(char));
    strncat(file_path,"/",STR_BIG_S*sizeof(char) - strlen(file_path));
    strncat(file_path,cat0[i].filename,STR_BIG_S*sizeof(char) - strlen(file_path));
 
