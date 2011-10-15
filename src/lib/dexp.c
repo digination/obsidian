@@ -219,14 +219,13 @@ int flushAnnounceQueue(peer* cpeer) {
   while ( i < qpos && cpeer->lock == 0) {
 
      //debug
-     printf("flushing announce queue\n");
+     //printf("flushing announce queue\n");
 
      setZeroN(announce,76);
      strncpy(announce,"ANNOUNCE ",sizeof(announce));
      strncat(announce,anqueue[i],sizeof(announce) - strlen(announce));
-     strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
 
-     printf("SENDING \"%s\"\n",announce);
+     strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
      
      dexp_send(cpeer,announce,strlen(announce));
      i++;
@@ -268,6 +267,8 @@ int announce(char *hash) {
       
          qpos = conf0.peers[i].an_queuesize;
          conf0.peers[i].announce_queue[qpos] = (char*) malloc(65*sizeof(char));
+         setZeroN(conf0.peers[i].announce_queue[qpos],65);
+         
          strncpy(conf0.peers[i].announce_queue[qpos],hash,64*sizeof(char));
          conf0.peers[i].an_queuesize++;
          conf0.peers[i].announce_queue = (char**) realloc(
@@ -284,9 +285,6 @@ int announce(char *hash) {
 }
 
 int sendDoc(peer* cpeer,char *hash) {
-
-
-   printf("IN_SENDOC!!\n");
 
    FILE *fh;
    char file_buffer[1000];
@@ -323,9 +321,6 @@ int sendDoc(peer* cpeer,char *hash) {
      return -1; 
 
    }
-
-
-   printf("SENDDOC_STEP2!!\n");
    
    setZeroN(file_path,STR_BIG_S);
    strncpy(file_path,conf0.data_dir,STR_BIG_S*sizeof(char));
@@ -426,8 +421,9 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
   //printf("NB_ARGS: %d\n",str0.nb_strings);
     
   if (str0.nb_strings > 0) {
-  
-    printf("%s",str0.strlist[0]);
+
+    //debug
+    //printf("%s",str0.strlist[0]);
 
     if (strstr( str0.strlist[0] , DEXP_GETINFOS ) == str0.strlist[0] ) {
 
@@ -491,8 +487,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     else if (strstr( str0.strlist[0] , DEXP_GETDOCUMENT ) == str0.strlist[0] ) {
 
-
-       printf("DOCUMENT REQUEST (%s)\n",trim(str0.strlist[1]));
 
        if (str0.nb_strings < 2) {
 
