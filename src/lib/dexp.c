@@ -299,6 +299,7 @@ int sendDoc(peer* cpeer,char *hash) {
    extern int nb_cat;
 
    cpeer->lock = 1;
+   setZeroN(send_buffer,STR_BIG_S);
    
    for (i=0;i<nb_cat;i++) {
 
@@ -345,7 +346,7 @@ int sendDoc(peer* cpeer,char *hash) {
    fseek(fh,0L,0);
    sprintf(fl_str,"%ld",file_length);
    
-   setZero(send_buffer);
+   setZeroN(send_buffer,STR_BIG_S);
    strncpy(send_buffer,"DOCUMENT:",sizeof(send_buffer));
    strncat(send_buffer,cat0[i].filename,sizeof(send_buffer) - strlen(send_buffer));
    strncat(send_buffer,":",sizeof(send_buffer) - strlen(send_buffer));
