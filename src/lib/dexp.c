@@ -225,6 +225,8 @@ int flushAnnounceQueue(peer* cpeer) {
      strncpy(announce,"ANNOUNCE ",sizeof(announce));
      strncat(announce,anqueue[i],sizeof(announce) - strlen(announce));
      strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
+
+     printf("SENDING \"%s\"\n",announce);
      
      dexp_send(cpeer,announce,strlen(announce));
      i++;
@@ -603,7 +605,7 @@ void *session_thread_serv(void * p_input) {
         //printf("%s\n",(char*) io_buffer);
 
         take_action(current_peer->socknum,current_peer,io_buffer);
-        setZero((char*)io_buffer);
+        setZeroN((char*)io_buffer,STR_BIG_S);
 
      }
 
