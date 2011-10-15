@@ -538,7 +538,8 @@ char* receive_catalog(peer* cpeer) {
             catpart_len = len - header_len;
           }
 
-         printf("HEADER_LEN:%d | CAT_LEN:%d\n",header_len,cat_len);
+         //debug
+         //printf("HEADER_LEN:%d | CAT_LEN:%d\n",header_len,cat_len);
 
          if (catpart_len > 0) {
             memcpy(cat_part,head_end_ptr+2,sizeof(char) * catpart_len);    
@@ -548,7 +549,8 @@ char* receive_catalog(peer* cpeer) {
          }
  
 
-         printf("IO_BUFFER: %s\n",io_buffer);
+         //debug
+         //printf("IO_BUFFER: %s\n",io_buffer);
          cat_params = explode(io_buffer,' ');
 
          if (cat_params.nb_strings > 1) {
@@ -750,7 +752,8 @@ int fetch_doc(peer *cpeer,char* hash) {
             fpart_len = len - header_len;
           }
 
-         printf("HEADER_LEN:%d | FPART_LEN:%d\n",header_len,fpart_len);
+         //debug
+         //printf("HEADER_LEN:%d | FPART_LEN:%d\n",header_len,fpart_len);
 
          if (fpart_len> 0) {
             memcpy(file_part,head_end_ptr+2,sizeof(char) * fpart_len);    
@@ -760,7 +763,8 @@ int fetch_doc(peer *cpeer,char* hash) {
 
          }
 
-         printf("IO_BUFFER: %s\n",io_buffer);
+         //debug
+         //printf("IO_BUFFER: %s\n",io_buffer);
 
          
          doc_params = explode(io_buffer,':');
@@ -922,7 +926,8 @@ void *session_thread_cli(void * p_input) {
 
   }
 
-  printf("MODE IDLE \n");
+  //debug
+  //printf("MODE IDLE \n");
   mode = DEXPMODE_IDLE;
   dexp_send(current_peer,DEXP_READY,sizeof(DEXP_READY));
 
