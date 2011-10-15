@@ -246,9 +246,10 @@ int announce(char *hash) {
    extern dexpd_config conf0;
    int i;   
    char io_buffer[STR_BIG_S];
-
    int qpos;
 
+   setZeroN(io_buffer,STR_BIG_S);
+   
    strcpy(io_buffer,"ANNOUNCE ");
    strncat(io_buffer,hash,STR_BIG_S*sizeof(char) - strlen(io_buffer) );
    strncat(io_buffer,"\r\n",STR_BIG_S*sizeof(char) - strlen(io_buffer) );
@@ -269,7 +270,9 @@ int announce(char *hash) {
          conf0.peers[i].announce_queue[qpos] = (char*) malloc(65*sizeof(char));
          strncpy(conf0.peers[i].announce_queue[qpos],hash,64*sizeof(char));
          conf0.peers[i].an_queuesize++;
-         conf0.peers[i].announce_queue = (char**) realloc(conf0.peers[i].announce_queue,(conf0.peers[i].an_queuesize +1)*sizeof(char*));
+         conf0.peers[i].announce_queue = (char**) realloc(
+         conf0.peers[i].announce_queue,
+         (conf0.peers[i].an_queuesize +1)*sizeof(char*));
                      
       }
 
@@ -468,6 +471,8 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
     }
 
     else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] ) {
+
+        printf("ANNOUNCE RECEIVED! (%s)\n",trim(str0.strlist[1]));
 
         if (str0.nb_strings < 2) {
 
