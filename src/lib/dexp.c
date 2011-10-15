@@ -285,6 +285,9 @@ int announce(char *hash) {
 
 int sendDoc(peer* cpeer,char *hash) {
 
+
+   printf("IN_SENDOC!!\n");
+
    FILE *fh;
    char file_buffer[1000];
    char send_buffer[STR_BIG_S];
@@ -320,6 +323,9 @@ int sendDoc(peer* cpeer,char *hash) {
      return -1; 
 
    }
+
+
+   printf("SENDDOC_STEP2!!\n");
    
    setZeroN(file_path,STR_BIG_S);
    strncpy(file_path,conf0.data_dir,STR_BIG_S*sizeof(char));
@@ -329,7 +335,7 @@ int sendDoc(peer* cpeer,char *hash) {
    printf(":%s\n",file_path);
 
    fh = fopen(file_path,"rb");
-   setZero(file_path);
+   setZeroN(file_path,STR_BIG_S);
 
    if (!fh) {
 
