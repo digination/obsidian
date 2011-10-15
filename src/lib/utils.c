@@ -163,10 +163,25 @@ int stricmp(const char* s1, const char* s2)
 }
 
 
-char ** strshift(char** strlist,int shift) {
+char** unqueue(char** strlist,int queue_size,int shift) {
 
+   int i,j,k;
+   char ** res = (char**) malloc((queue_size-shift) * sizeof(char*) ) ; 
+   char ** foo = strlist;
+    
+   for (i=shift;i<queue_size;i++) {
    
+      res[i - shift] = strlist[i];
 
-   return strlist;
+   }
+
+   for (i=0;i<shift;i++) {
+
+      free(foo[i]);
+
+   }
+
+
+   return res;
 
 }

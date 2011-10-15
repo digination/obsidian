@@ -210,13 +210,16 @@ int sendCatalog(peer *cpeer) {
 
 int flushAnnounceQueue(peer* cpeer) {
 
-  int qpos = qpos = cpeer->an_queuesize;
+  int qpos = cpeer->an_queuesize;
   char ** anqueue = cpeer->announce_queue;
   int i = 0;  
   char announce[76];
   
 
   while ( i < qpos && cpeer->lock == 0) {
+
+     //debug
+     printf("flushing announce queue\n");
 
      setZeroN(announce,76);
      strncpy(announce,"ANNOUNCE ",sizeof(announce));
@@ -228,7 +231,7 @@ int flushAnnounceQueue(peer* cpeer) {
 
   }
 
-  strshift(cpeer->announce_queue, i);
+  cpeer->announce_queue = unqueue(cpeer->announce_queue,qpos, i);
   cpeer->an_queuesize -= i;
   return 0;
 
@@ -457,7 +460,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
        else {
        
-          //flushAnnounceQueue(cpeer);             
+          flushAnnounceQueue(cpeer);             
       }
 
     }
