@@ -472,8 +472,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] ) {
 
-        printf("ANNOUNCE RECEIVED! (%s)\n",trim(str0.strlist[1]));
-
         if (str0.nb_strings < 2) {
 
             dexp_send(cpeer,"300 MISSING ARGUMENT\r\n",22);
@@ -485,6 +483,9 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
 
     else if (strstr( str0.strlist[0] , DEXP_GETDOCUMENT ) == str0.strlist[0] ) {
+
+
+       printf("DOCUMENT REQUEST (%s)\n",trim(str0.strlist[1]));
 
        if (str0.nb_strings < 2) {
 
@@ -721,17 +722,21 @@ int fetch_doc(peer *cpeer,char* hash) {
 
    stringlist doc_params;
 
+
+   setZeroN(doc_query,80);
+
    strcpy(doc_query,"GET_DOCUMENT ");
    strcat(doc_query,hash);
    strcat(doc_query,"\r\n");
    //printf("QUERY: %s",doc_query);
 
    dexp_send(cpeer,doc_query,strlen(doc_query));
-   setZeroN(io_buffer,STR_BIG_S);
-
+   
    file_part = (void*) malloc(STR_BIG_S*sizeof(char));
    setZeroN((char*)file_part,STR_BIG_S);
 
+
+   setZeroN(io_buffer,STR_BIG_S);
    
    if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S * sizeof(char))) > 0 ) {
      
