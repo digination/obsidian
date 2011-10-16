@@ -270,12 +270,16 @@ int announce(char *hash) {
          setZeroN(conf0.peers[i].announce_queue[qpos],65);
          
          strncpy(conf0.peers[i].announce_queue[qpos],hash,64*sizeof(char));
+
          conf0.peers[i].an_queuesize++;
+         
          conf0.peers[i].announce_queue = (char**) realloc(
          conf0.peers[i].announce_queue,
          (conf0.peers[i].an_queuesize +1)*sizeof(char*));
-                     
+                        
       }
+
+      
 
 
    }
@@ -446,7 +450,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
     else if (strcmp( str0.strlist[0], DEXP_READY ) == 0 ) {
     
        //retrieve catalog from peer
-       if (cpeer->has_catalog == 0 && cpeer->sync_mode == SYNC_NORMAL) {
+       if (cpeer->has_catalog == 0 && cpeer->sync_mode == SYNC_NORMAL && cpeer->pub != 1) {
 
            
            dexp_send(cpeer,"GET_CATALOG\r\n",14);
@@ -473,7 +477,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     }
 
-    else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] ) {
+    else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] && cpeer->pub != 1) {
 
         if (str0.nb_strings < 2) {
 
@@ -954,4 +958,23 @@ void *session_thread_cli(void * p_input) {
      
   }
 
+}
+
+int createPeer(char* host,int socknum,uint8_t isPublic) {
+
+  extern dexpd_config conf0;
+  int cpos = 0;
+  
+  conf0.nb_peers++;
+  conf0.peers = (peer*) realloc(conf0.peers,conf0.nb_peers * sizeof(peer) +1);
+  cpos = conf0.nb_peers-1;
+
+  memcpy(conf0.peers[cpos].host,host,STR_REG_S*sizeof(char));
+  
+  conf0.peers[cpos].has_catalog=0;
+  conf0.peers[cpos].pub = isPublic;
+  conf0.peers[cpos].socknum = socknum;
+  conf0.peers[cpos].ssl = NULL; 
+
+ 
 }

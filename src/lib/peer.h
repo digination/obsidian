@@ -9,7 +9,6 @@
    #define SYNC_NOSYNC 0x02
 
 
-
    typedef struct peer_capacity {
    
      char proto[5];
@@ -31,6 +30,7 @@
       char **announce_queue;
       int an_queuesize;
       peer_capacity capacity;
+      uint8_t pub;
 
    } peer;
 

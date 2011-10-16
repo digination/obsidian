@@ -56,7 +56,7 @@ int connectAll() {
   int i = 0;
   int socknum;
   
-  if (conf0.peers == NULL) fprintf(stderr,"ERROR: NO PEERS IN CONFIGURATION\n");
+  if (conf0.peers == NULL) printf("Notice: No peers in configuration\n");
 
   for (i=0;i<conf0.nb_peers;i++) {
           
@@ -328,12 +328,19 @@ int main(int argc, char** argv) {
          printf("New Connection From %s\n",peer_str);
 
          //gerer la notion de public ici
-         if ( (peer_num = isPeer(peer_str,sock_id)) < 0 ) {
+         if ( (peer_num = isPeer(peer_str,sock_id)) < 0 && conf0.pub == 0) {
 
              fprintf(stderr,"ERROR: REMOTE HOST NOT In PEERS LIST\n");
              close(sock_id);
 
          }  
+
+         else if (conf0.pub == 1) {
+
+            printf("Notice: Accepting public connection for host %s\n",peer_str);
+            createPeer(peer_str,sock_id,1);
+            
+         }
 
          else {
 			 

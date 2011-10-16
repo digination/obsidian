@@ -47,7 +47,8 @@ typedef struct dexpd_config {
 
    SSL_CTX *ctx;
    ruleset rs;
-
+   uint8_t pub;
+   
 } dexpd_config;
 
 

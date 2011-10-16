@@ -5,4 +5,6 @@ Implement filters
 
 TODO HIGH_PRIO
 Implemment logging function
-Implment public dexp nodes
+Clean up the Install mess (finish the Makefile install process, find a way to change defines at configure time, to handle location prefixes )
+Finish Documentation
+

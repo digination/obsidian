@@ -59,6 +59,7 @@ int parse_peers(char *peers_str) {
       //we put the SSL handler to NULL
 	  conf0.peers[i].ssl = NULL;
 	  conf0.peers[i].has_catalog = 0;
+	  conf0.peers[i].pub = 0;
 		  
      //free(hostandport);
       
@@ -96,6 +97,10 @@ int init_config() {
 
    fh = fopen(ADEPD_CONFIG_FILE,"r");
 
+   //init some default config variables
+   conf0.use_tls= 0;
+   conf0.pub = 0;
+   
    //init ruleset
    conf0.rs.rules = (filter*) malloc(sizeof(filter));
    conf0.rs.nb_rules = 0;
@@ -184,6 +189,11 @@ int init_config() {
 
         else if (strcmp(opt_name,"use_tls") == 0 ) {
            if (strcmp(opt_value,"true") == 0 ) conf0.use_tls = 1;
+         }
+
+
+        else if (strcmp(opt_name,"public_node") == 0 ) {
+           if (strcmp(opt_value,"true") == 0 ) conf0.pub = 1;
          }
 
         else if (strcmp(opt_name,"tls_server_cert") == 0 ) {

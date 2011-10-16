@@ -65,6 +65,7 @@ void fetch_docs(peer*,hash_queue*,int*);
 int parse_capacity(peer*,char*);
 int negotiate(peer*);
 int receiveNego(peer*);
+int createPeer(char*,int,uint8_t);
 
 #endif
 
