@@ -937,7 +937,6 @@ void *session_thread_cli(void * p_input) {
 
   while(current_peer->socknum != -1) {
 
-
      if ( (len = dexp_recv(current_peer,io_buffer,STR_BIG_S*sizeof(char))) > 0 ) {
 
          switch(mode) {
