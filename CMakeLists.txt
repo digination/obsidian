@@ -4,7 +4,7 @@ project(obsidian)
 
 SET (CMAKE_C_FLAGS "-g -fPIE")
 
-ADD_DEFINITIONS(-DCMAKE_INSTALL_PREFIX=/usr/local/obsidian)
+add_definitions(-DOBSIDIAN_PREFIX=\"${CMAKE_INSTALL_PREFIX}\")
 
 add_executable(
 	obsidian
@@ -42,7 +42,6 @@ target_link_libraries(
 
 install (TARGETS obsidian DESTINATION bin)
 install (FILES "src/conf/obsidian.conf" DESTINATION etc)
-install (FILES "src/conf/obsidian-documentation-0.1.pdf" DESTINATION doc)
+install (FILES "doc/obsidian-documentation-0.1.pdf" DESTINATION doc)
 install (FILES "src/tools/obsidian-mkcert" DESTINATION tools)
-
 

@@ -12,7 +12,8 @@
 #include "filter.h"
 
 
-#define ADEPD_CONFIG_FILE "/etc/obsidian.conf"
+#define DEXPD_CONFIG_FILE "/etc/obsidian.conf"
+
 #define MAX_OPT_STR_LEN STR_BIG_S
 
 

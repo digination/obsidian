@@ -84,10 +84,11 @@ Now let's make the model evolve. Node 2 from sphere 1 peers with node 2 from sph
 \includegraphics[scale=1]{../resources/images/global_arch_2.png}
 \end{center}
 
+From an ensemblist point of view, to describe the nodes behaviours while peering, we can write the following axioms:\\\\
 $
 n1 \epsilon S1 \\
 n2 \epsilon S2 \\
-peering(n1,n2) =>  n1 \epsilon (S1 \cap S2) , n2 \epsilon (S1 \cap S2)\\\\$
+peering(n1,n2) =>  n1 \epsilon (S1 \cup S2) ; n2 \epsilon (S1 \cup S2)\\\\$
 
 
 \clearpage
@@ -136,11 +137,11 @@ This step explains how to build Obsidian from sources, with the use of cmake and
 This is cmake's duty to help you create a correct Makefile, suitable for your platform (even though up to know, obsidian is only compatible with Linux :P).\\
 In order to produce your Makefile, you'll just have to use the following command at the root of obsidian's project tree :\\
 
-\verb|cmake -DPREFIX=/usr/local/obsidian . |\\
+\verb|cmake -DCMAKE_INSTALL_PREFIX=/usr/local/obsidian . |\\
 
-Also note that you can of course change the directory where obsidian will be installed, by modifying the PREFIX variable in the command above.
+Also note that you can of course change the directory where obsidian will be installed, by modifying the CMAKE\_INSTALL\_PREFIX variable in the command above.
 
-\subsection{Let's roll, baby !}
+\subsubsection{Let's roll, baby !}
 
 Now that the Makefile for obsidian has been created, we can lunch the actual compilation step, with the command:\\
 

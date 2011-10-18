@@ -1,0 +1,4 @@
+#!/bin/bash
+
+## This is a watchdog script for Obsidian, ensuring that the daemon is always running even after a potential crash
+

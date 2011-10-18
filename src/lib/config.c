@@ -95,7 +95,22 @@ int init_config() {
    int line = 0;
    filter* f0;
 
-   fh = fopen(ADEPD_CONFIG_FILE,"r");
+   char dexp_config_path[STR_BIG_S];
+   setZeroN(dexp_config_path,STR_BIG_S);
+
+   #ifdef OBSIDIAN_PREFIX
+
+      strncpy(dexp_config_path,
+              OBSIDIAN_PREFIX,
+              STR_BIG_S*sizeof(char));
+
+   #endif
+
+     strncat(dexp_config_path,
+             DEXPD_CONFIG_FILE,
+             STR_BIG_S*sizeof(char) - strlen(dexp_config_path));
+
+   fh = fopen(dexp_config_path,"r");
 
    //init some default config variables
    conf0.use_tls= 0;

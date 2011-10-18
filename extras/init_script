@@ -1,0 +1,45 @@
+#!/bin/bash
+
+OBSIDIAN_PREFIX=/usr/local/obsidian
+
+if [ $# -lt 2 ] ; then
+
+ echo "Usage: $0 <start|stop|restart|reload>"
+
+fi
+
+
+case $1 in
+
+    start)
+  
+       echo "starting Obsidian..."
+       start-stop-daemon -S -b -x $OBSIDIAN_PREFIX/bin/obsidian -m -p /var/run/obsidian.pid && echo "ok";
+
+    ;;
+
+    stop)
+
+
+       echo "stopping Obsidian..."
+       start-stop-daemon -K -p /var/run/obsidian.pid && echo "ok"
+       rm /var/run/obsidian.pid
+
+    ;;
+
+    restart)
+
+      echo "restarting Obsidian daemon..."
+      start-stop-daemon -K -p /var/run/obsidian.pid
+      rm /var/run/obsidian.pid    
+      sleep 1
+      start-stop-daemon -S -b -x $OBSIDIAN_PREFIX/bin/obsidian -m -p /var/run/obsidian.pid && echo "ok";
+
+    ;;
+
+    reload)
+
+       cat /var/run/obsidian.pid | xargs kill -HUP
+    ;;
+
+esac

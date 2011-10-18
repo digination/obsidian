@@ -5,7 +5,7 @@ Implement filters
 
 TODO HIGH_PRIO
 Implemment logging function
-Clean up the Install mess (finish the Makefile install process, find a way to change defines at configure time, to handle location prefixes )
+finish TLS configuration process / redefine directories
 Finish Documentation
 Implement file Mods through xdelta algorithm
 
