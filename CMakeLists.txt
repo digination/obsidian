@@ -4,6 +4,8 @@ project(obsidian)
 
 SET (CMAKE_C_FLAGS "-g -fPIE")
 
+ADD_DEFINITIONS(-DCMAKE_INSTALL_PREFIX=/usr/local/obsidian)
+
 add_executable(
 	obsidian
 	src/obsidian.c
