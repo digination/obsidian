@@ -2,9 +2,10 @@
 
 OBSIDIAN_PREFIX=/usr/local/obsidian
 
-if [ $# -lt 2 ] ; then
+if [ $# -lt 1 ] ; then
 
  echo "Usage: $0 <start|stop|restart|reload>"
+ exit 1
 
 fi
 
