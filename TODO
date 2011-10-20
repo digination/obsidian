@@ -8,4 +8,5 @@ Implemment logging function
 finish TLS configuration process / redefine directories
 Finish Documentation
 Implement file Mods through xdelta algorithm
+Implement file DEL announces (optional)
 

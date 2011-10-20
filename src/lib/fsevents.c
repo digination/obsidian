@@ -92,7 +92,7 @@ void *notify_thread(void* notify_fd) {
             i += EVENT_SIZE + event->len;
 
             result_hash = add_hash(event->name);
-            announce(result_hash);
+            announce(result_hash,DEXP_AN_ADD);
 
           }
 

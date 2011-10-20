@@ -240,16 +240,41 @@ int flushAnnounceQueue(peer* cpeer) {
 
 
 
-int announce(char *hash) {
+int announce(char *hash,int mode) {
 
    extern dexpd_config conf0;
    int i;   
    char io_buffer[STR_BIG_S];
    int qpos;
+   char mode_str[STR_SMALL_S];
 
    setZeroN(io_buffer,STR_BIG_S);
-   
+   setZeroN(mode_str,STR_SMALL_S);
+
+   switch(mode) {
+
+      case DEXP_AN_ADD:
+      
+         strcpy(mode_str,DEXP_AN_ADD_STR);
+         break;
+
+      case DEXP_AN_MOD:
+         strcpy(mode_str,DEXP_AN_MOD_STR);
+         break;
+
+      case DEXP_AN_DEL:
+         strcpy(mode_str,DEXP_AN_DEL_STR);
+         break;
+
+      default:
+         break;
+
+   }
+
+
    strcpy(io_buffer,"ANNOUNCE ");
+   strncat(io_buffer,mode_str,STR_BIG_S*sizeof(char) - strlen(io_buffer));
+   strncat(io_buffer," ",STR_BIG_S*sizeof(char) - strlen(io_buffer));
    strncat(io_buffer,hash,STR_BIG_S*sizeof(char) - strlen(io_buffer) );
    strncat(io_buffer,"\r\n",STR_BIG_S*sizeof(char) - strlen(io_buffer) );
 
@@ -479,13 +504,15 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
     else if (strstr( str0.strlist[0] , DEXP_ANNOUNCE ) == str0.strlist[0] && cpeer->pub != 1) {
 
-        if (str0.nb_strings < 2) {
+        if (str0.nb_strings < 3) {
 
             dexp_send(cpeer,"300 MISSING ARGUMENT\r\n",22);
             return -2;
        } 
 
-       process_announce(cpeer,trim(str0.strlist[1]));
+       process_announce(cpeer,trim(str0.strlist[2]));
+       
+       
     }
 
 
@@ -729,6 +756,8 @@ int fetch_doc(peer *cpeer,char* hash) {
 
    stringlist doc_params;
 
+   //put lock on cpeer
+   cpeer->lock = 1;
 
    setZeroN(doc_query,80);
 
@@ -805,6 +834,7 @@ int fetch_doc(peer *cpeer,char* hash) {
          if (!fh) {
 
             fprintf(stderr,"ERROR: CANNOT OPEN %s FOR WRITING\n",file_path);
+            cpeer->lock = 0;
             return -1;
 
          }
@@ -838,6 +868,7 @@ int fetch_doc(peer *cpeer,char* hash) {
          printf("Notice: file %s fetched succesfully\n",doc_params.strlist[1]);
          fclose(fh);
          rename(file_path,file_dest);
+         cpeer->lock = 0;
         
      
        }

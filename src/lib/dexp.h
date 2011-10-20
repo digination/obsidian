@@ -24,6 +24,17 @@
 //notifications
 #define DEXP_READY "READY\r\n"
 
+
+//Announce modes
+#define DEXP_AN_ADD 0x01
+#define DEXP_AN_MOD 0x02
+#define DEXP_AN_DEL 0x03
+
+#define DEXP_AN_ADD_STR "ADD"
+#define DEXP_AN_MOD_STR "MOD"
+#define DEXP_AN_DEL_STR "MOD"
+
+
 //Modes
 #define DEXPMODE_IDLE 0x00
 #define DEXPMODE_WAIT_CATALOG_HEADER 0x01
@@ -56,7 +67,7 @@ void *session_thread_cli(void *);
 
 void* keepalive_thread();
 
-int announce(char*);
+int announce(char*,int);
 int process_announce(peer*,char*);
 int fetch_doc(peer*,char*);
 char* receive_catalog(peer*);
