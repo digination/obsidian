@@ -148,7 +148,7 @@ void* anflush_loop() {
 
         if (conf0.peers[i].lock != 1 && conf0.peers[i].an_queuesize > 0) {
 			
-           flushAnnounceQueue(conf0.peers[i]);
+           flushAnnounceQueue(&(conf0.peers[i]));
 			
 		}
 	 }
