@@ -213,7 +213,7 @@ int flushAnnounceQueue(peer* cpeer) {
   int qpos = cpeer->an_queuesize;
   char ** anqueue = cpeer->announce_queue;
   int i = 0;  
-  char announce[76];
+  char announce[81];
   
 
   while ( i < qpos && cpeer->lock == 0) {
@@ -221,8 +221,10 @@ int flushAnnounceQueue(peer* cpeer) {
      //debug
      printf("flushing announce queue for host %s\n",cpeer->host);
 
-     setZeroN(announce,76);
+     setZeroN(announce,81);
      strncpy(announce,"ANNOUNCE ",sizeof(announce));
+     strncat(announce,DEXP_AN_ADD_STR,sizeof(announce) - strlen(announce));
+     strncat(announce," ",sizeof(announce) - strlen(announce));
      strncat(announce,anqueue[i],sizeof(announce) - strlen(announce));
 
      strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
@@ -346,7 +348,6 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"400 FILE NOT FOUND\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer)+1);
-     cpeer->lock = 0;
      return -1; 
 
    }
@@ -365,7 +366,6 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer));
-     cpeer->lock = 0;
      return -2;
 
 
@@ -395,7 +395,6 @@ int sendDoc(peer* cpeer,char *hash) {
    }
 
    fclose(fh);
-   cpeer->lock = 0;
    return 0;
    
 }
@@ -520,8 +519,10 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
             return -2;
        } 
 
+       cpeer->lock = 1;
        sendDoc(cpeer,trim(str0.strlist[1]));
-
+       cpeer->lock = 0;
+   
     }
 
     else if (strstr( str0.strlist[0] , DEXP_STARTTLS ) == str0.strlist[0] ) {
