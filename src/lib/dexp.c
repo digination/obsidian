@@ -219,7 +219,7 @@ int flushAnnounceQueue(peer* cpeer) {
   while ( i < qpos && cpeer->lock == 0) {
 
      //debug
-     //printf("flushing announce queue\n");
+     printf("flushing announce queue for host %s\n",cpeer->host);
 
      setZeroN(announce,76);
      strncpy(announce,"ANNOUNCE ",sizeof(announce));
@@ -424,7 +424,7 @@ int process_announce(peer *cpeer,char*hash) {
    if (! found ) {
 
       fetch_doc(cpeer,hash);
-      dexp_send(cpeer,DEXP_READY,sizeof(DEXP_READY));
+      //dexp_send(cpeer,DEXP_READY,sizeof(DEXP_READY));
       return 0;
 
    } 
@@ -494,11 +494,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
            }
           
        }
-
-       else {
-       
-          flushAnnounceQueue(cpeer);             
-      }
 
     }
 
@@ -807,7 +802,8 @@ int fetch_doc(peer *cpeer,char* hash) {
          //security, to avoid passing doc headers containing cannonical paths and/or/ upper directory references.
          if ( strstr(doc_params.strlist[1],"/") == doc_params.strlist[1] ||\
               strstr(doc_params.strlist[1],"../") != NULL ) {
-              
+
+		    cpeer->lock = 0;
             return -2;
          }
 

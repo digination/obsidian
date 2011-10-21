@@ -136,6 +136,29 @@ int try_reconnect() {
 
 }
 
+
+void* anflush_loop() {
+
+  extern dexpd_config conf0;
+  int i;
+	
+  while(1) {
+
+     for (i=0;i<conf0.nb_peers;i++) {
+
+        if (conf0.peers[i].lock != 1 && conf0.peers[i].an_queuesize > 0) {
+			
+           flushAnnounceQueue(conf0.peers[i]);
+			
+		}
+	 }
+	  
+  }
+
+}
+
+
+
 void* reconnect_loop() {
 
   pthread_detach(pthread_self());
@@ -259,6 +282,7 @@ int main(int argc, char** argv) {
    pthread_t notify_th;
    pthread_t reconnect_th;
    pthread_t listenv6;
+   pthread_t anflush_th;
 
    struct sockaddr_in peer_addr;
    socklen_t addr_len = sizeof(peer_addr);
@@ -297,6 +321,10 @@ int main(int argc, char** argv) {
    pthread_create(&notify_th,NULL,notify_thread,&notify_fd);
 
 
+   //starting a new thread for flushing announce queues
+   pthread_create(&anflush_th,NULL,anflush_loop,NULL);
+
+	
    printf("initating connections with peers...\n");
    connectAll();
    pthread_create(&reconnect_th,NULL,reconnect_loop,NULL);
