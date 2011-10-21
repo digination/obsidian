@@ -878,7 +878,7 @@ void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
 
       cpeer->lock=1;
       fetch_doc(cpeer,hq0[i].hash);
-      cpeer_lock=0;
+      cpeer->lock=0;
    }
 
 }
