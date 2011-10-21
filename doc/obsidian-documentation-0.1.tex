@@ -35,7 +35,7 @@
 
 \clearpage
 
-{\textbf{}
+{\textbf{This paper is released under the CC-by-SA licence.}
 {\small\em }}
 \vspace{0.5cm}
 {\bf\it \\Keywords:}
@@ -50,21 +50,21 @@
 
 \section{Introduction}
 
-This is the documentation of the Obsidian Peer-to-Peer mirroring Software,
-version 0.1. This paper is released under CC-by-SA licence. \\\\In ancient times, People was using a volcanic stone, which amount of 
+In ancient times, People was using a volcanic stone, which amount of 
+
+Durant l'antiquitié, les premiers premiers mirroirs concus par l'homme etaient fabriqué à partir d'une pierre
 
 \section{Overview}
 
 Obsidian is a fast-mirroring, Peer-to-Peer software which was specially designed to maintain large file repositories synchronized with each others, featuring very fast changes propagating. \\\\To achieve this, Obsidian use 2 core technologies: Filesystem Events Listening , and a new protocol specially designed for the occasion: DEXP, acronym for Documents EXchange Protocol. With DEXP, Change Notifications are sent directly to the mirroring peers, so they don't have to poll periodically for file changes.\\\\
 
-To illustrate how fast is Obsidian compared to a classical multiple rsync-based system, we can do the math:\\\\
-Let's consider a chain of n peers, each node being synchronized to the next with a periodical rsynch check $(T_c)$.The time taken by each node to download a change is $T_d$.
+To illustrate how fast is Obsidian compared to a classical multiple rsync-based system, let's consider a chain of n peers, each node being synchronized to the next with a periodical rsynch check $(T_c)$.The time taken by each node to download a change is $T_d$.
 In this case, the worst-case propagating time will be:\\\\
 
 $ T_r = \sum_0^n T_d(n) + T_c(n) $\\\\
 As we can see in this case (rsync) , the more nodes we have, the more time it loses, because of the accumulation the $T_c$ components.\\\\But in the other case (Obsidian) , the calculation of the maximum propagating time between n nodes is:\\\\
 $ T_r  = \sum_0^n T_d(n) $\\\\
-So with obisidan, The more nodes you haves, the more efficient it is compared to a periodic-poll based method.If we now consider a $T_c$ constant for each node, we can evaluate the speed gain with: $T_g = nT_c$ \\So the bigger is n, the bigger is the gain.
+So with obisidan, The more nodes you haves, the more efficient it is compared to a periodic-poll based method. If we now consider a $T_c$ constant for each node, we can evaluate the speed gain with:\\\\ $T_g = nT_c$ \\
 
 \section{Global Architecture}
 
@@ -117,7 +117,9 @@ In order to build and run Obsidian, you'll need: \\\\
 - The OpenSSL Library plus its headers (libssl-dev) , 0.9.8 or higher.\\
 - Cross-platform make (cmake 2.6 or higher).\\
 - The GNU C compiler ( gcc-4.X ).\\
-- Git DVCS(to retrieve the source code, if not done yet )\\
+- Git DVCS(to retrieve the source code, if not done yet )\\\\
+
+Also please note that you'll need root credentials on your system in order to install Obsidian. 
 
 \subsection{Fetching the sources}
 
@@ -125,19 +127,19 @@ Here we're assuming that that you haven't fetched the obsidian source code yet. 
 
 Once you have git installed on your system, just type:\\
  
-\verb|git clone git://github.com/digination/obsidian.git |
+\verb|$git clone git://github.com/digination/obsidian.git |
 
 
 \subsection{Compilation}
 
-This step explains how to build Obsidian from sources, with the use of cmake and gcc.\\
+This step explains how to build Obsidian from sources, with the use of cmake and gcc.
 
 \subsubsection{Producing the Makefile}
 
 This is cmake's duty to help you create a correct Makefile, suitable for your platform (even though up to know, obsidian is only compatible with Linux :P).\\
 In order to produce your Makefile, you'll just have to use the following command at the root of obsidian's project tree :\\
 
-\verb|cmake -DCMAKE_INSTALL_PREFIX=/usr/local/obsidian . |\\
+\verb|$cmake -DCMAKE_INSTALL_PREFIX=/usr/local/obsidian . |\\
 
 Also note that you can of course change the directory where obsidian will be installed, by modifying the CMAKE\_INSTALL\_PREFIX variable in the command above.
 
@@ -145,16 +147,29 @@ Also note that you can of course change the directory where obsidian will be ins
 
 Now that the Makefile for obsidian has been created, we can lunch the actual compilation step, with the command:\\
 
-\verb|make |\\
+\verb|$make |\\
 
 \subsection{Installation}
 
-Ok now that the compilation process is ok, let's install obsidian on the Système, according to the PREFIX variable declared earlier.To install Obsidian, Nothing is more simple. From the Obsidian project Root Directory, just type the following:\\
+Ok now that the compilation process is ok, let's install obsidian on the Système, according to the PREFIX variable declared earlier.To install Obsidian, 
+Nothing is more simple. From the Obsidian project Root Directory, just type the following: (as root)\\
 
-\verb|make install |\\
+\verb|$make install |\\
 
-\subsection{Configuration} 
+\subsection{Basic Configuration} 
 
+
+\section{Configuration File} 
+
+This section makes an exhaustive énumeration of all the options which can be modified inside obsidian's configuration file.
+
+\subsection{Peers}
+
+\subsection{Sockets/ Connection Options}
+
+\subsection{TLS Options}
+
+ 
 \section{Advanced Usages}
 
 \subsection{Setting up TLS on your obsidian Server}
