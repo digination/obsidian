@@ -330,7 +330,7 @@ int sendDoc(peer* cpeer,char *hash) {
    extern dexpd_config conf0;
    extern int nb_cat;
 
-   cpeer->lock = 1;
+
    setZeroN(send_buffer,STR_BIG_S);
    
    for (i=0;i<nb_cat;i++) {
@@ -422,8 +422,9 @@ int process_announce(peer *cpeer,char*hash) {
    
    if (! found ) {
 
+      cpeer->lock= 1;
       fetch_doc(cpeer,hash);
-      //dexp_send(cpeer,DEXP_READY,sizeof(DEXP_READY));
+      cpeer->lock = 0;
       return 0;
 
    } 
@@ -752,9 +753,6 @@ int fetch_doc(peer *cpeer,char* hash) {
 
    stringlist doc_params;
 
-   //put lock on cpeer
-   cpeer->lock = 1;
-
    setZeroN(doc_query,80);
 
    strcpy(doc_query,"GET_DOCUMENT ");
@@ -803,8 +801,7 @@ int fetch_doc(peer *cpeer,char* hash) {
          //security, to avoid passing doc headers containing cannonical paths and/or/ upper directory references.
          if ( strstr(doc_params.strlist[1],"/") == doc_params.strlist[1] ||\
               strstr(doc_params.strlist[1],"../") != NULL ) {
-
-		    cpeer->lock = 0;
+              
             return -2;
          }
 
@@ -831,7 +828,6 @@ int fetch_doc(peer *cpeer,char* hash) {
          if (!fh) {
 
             fprintf(stderr,"ERROR: CANNOT OPEN %s FOR WRITING\n",file_path);
-            cpeer->lock = 0;
             return -1;
 
          }
@@ -865,8 +861,6 @@ int fetch_doc(peer *cpeer,char* hash) {
          printf("Notice: file %s fetched succesfully\n",doc_params.strlist[1]);
          fclose(fh);
          rename(file_path,file_dest);
-         cpeer->lock = 0;
-        
      
        }
 
@@ -882,7 +876,9 @@ void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
    
    for (i=0;i<*nb_hq;i++) {
 
+      cpeer->lock=1;
       fetch_doc(cpeer,hq0[i].hash);
+      cpeer_lock=0;
    }
 
 }
