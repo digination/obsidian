@@ -208,34 +208,26 @@ int sendCatalog(peer *cpeer) {
 
 
 
-int flushAnnounceQueue(peer* cpeer) {
+int popAnnounceQueue(peer* cpeer) {
 
   int qpos = cpeer->an_queuesize;
   char ** anqueue = cpeer->announce_queue;
-  int i = 0;  
   char announce[81];
   
+  //debug
+  printf("flushing announce queue for host %s\n",cpeer->host);
 
-  while ( i < qpos && cpeer->lock == 0) {
-
-     //debug
-     printf("flushing announce queue for host %s\n",cpeer->host);
-
-     setZeroN(announce,81);
-     strncpy(announce,"ANNOUNCE ",sizeof(announce));
-     strncat(announce,DEXP_AN_ADD_STR,sizeof(announce) - strlen(announce));
-     strncat(announce," ",sizeof(announce) - strlen(announce));
-     strncat(announce,anqueue[i],sizeof(announce) - strlen(announce));
-
-     strncat(announce,"\r\n",sizeof(announce) - strlen(announce));
-     
-     dexp_send(cpeer,announce,strlen(announce));
-     i++;
-
-  }
-
-  cpeer->announce_queue = unqueue(cpeer->announce_queue,qpos, i);
-  cpeer->an_queuesize -= i;
+  setZeroN(announce,81);
+  strncpy(announce,"ANNOUNCE ",sizeof(announce));
+  strncat(announce,DEXP_AN_ADD_STR,sizeof(announce) - strlen(announce));
+  strncat(announce," ",sizeof(announce) - strlen(announce));
+  strncat(announce,anqueue[0],sizeof(announce) - strlen(announce));
+  
+  strncat(announce,"\r\n",sizeof(announce) - strlen(announce));   
+  dexp_send(cpeer,announce,strlen(announce));
+  
+  cpeer->announce_queue = unqueue(cpeer->announce_queue,qpos, 1);
+  cpeer->an_queuesize -= 1;
   return 0;
 
 }
@@ -426,9 +418,11 @@ int process_announce(peer *cpeer,char*hash) {
       fetch_doc(cpeer,hash);
       cpeer->lock = 0;
       return 0;
+      
 
    } 
 
+   dexp_send(cpeer,DEXP_FIN,sizeof(DEXP_FIN));
    return -1;
 
 
