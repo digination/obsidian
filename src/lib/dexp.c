@@ -522,7 +522,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
        cpeer->lock = 1;
        sendDoc(cpeer,trim(str0.strlist[1]));
-       cpeer->lock = 0;
    
     }
 
@@ -533,6 +532,14 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
       
     }
+
+     else if (strstr( str0.strlist[0] , DEXP_FIN ) == str0.strlist[0] ) {
+
+       cpeer->lock = 0;
+      
+    }
+
+
 
 
   }
@@ -861,6 +868,8 @@ int fetch_doc(peer *cpeer,char* hash) {
          printf("Notice: file %s fetched succesfully\n",doc_params.strlist[1]);
          fclose(fh);
          rename(file_path,file_dest);
+         dexp_send(cpeer,DEXP_FIN,sizeof(DEXP_FIN));
+
      
        }
 

@@ -23,6 +23,7 @@
 
 //notifications
 #define DEXP_READY "READY\r\n"
+#define DEXP_FIN "FIN\r\n"
 
 
 //Announce modes
