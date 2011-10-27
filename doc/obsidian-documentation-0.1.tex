@@ -50,13 +50,13 @@
 
 \section{Introduction}
 
-In ancient times, People was using a volcanic stone, which amount of 
-
-Durant l'antiquitié, les premiers premiers mirroirs concus par l'homme etaient fabriqué à partir d'une pierre
+In ancient times, The first human-crafted mirrors were built out of a black volcanic stone, which vitreous aspect is due to its silica rich chemical composition.
+The story says that this dark stone was discovered by Obsius in Ethiopia, and was much later nammed 'Obsidian' in his memory. Today, 
+honorring its illustrous material ancestor, Obsidian provides an high-profile digital content mirroring solution for GNU/Linux Operating Systems.
 
 \section{Overview}
 
-Obsidian is a fast-mirroring, Peer-to-Peer software which was specially designed to maintain large file repositories synchronized with each others, featuring very fast changes propagating. \\\\To achieve this, Obsidian use 2 core technologies: Filesystem Events Listening , and a new protocol specially designed for the occasion: DEXP, acronym for Documents EXchange Protocol. With DEXP, Change Notifications are sent directly to the mirroring peers, so they don't have to poll periodically for file changes.\\\\
+Obsidian is a fast-mirroring, Peer-to-Peer software which was specially designed to maintain large file repositories synchronized with each others, featuring very fast changes propagating even on a large scale \\\\To achieve this, Obsidian use 2 core technologies: Filesystem Events Listening , and a new protocol specially designed for the occasion: DEXP, acronym for Documents EXchange Protocol. With DEXP, Change Notifications are sent directly to the mirroring peers, so they don't have to poll periodically for file changes.\\\\
 
 To illustrate how fast is Obsidian compared to a classical multiple rsync-based system, let's consider a chain of n peers, each node being synchronized to the next with a periodical rsynch check $(T_c)$.The time taken by each node to download a change is $T_d$.
 In this case, the worst-case propagating time will be:\\\\
