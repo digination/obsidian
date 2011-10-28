@@ -530,7 +530,7 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
      else if (strstr( str0.strlist[0] , DEXP_FIN ) == str0.strlist[0] ) {
 
        cpeer->lock = 0;
-       prinf("FIN received, unlocking connection !\n");
+       printf("FIN received, unlocking connection !\n");
 		 
       
     }
@@ -760,7 +760,9 @@ int fetch_doc(peer *cpeer,char* hash) {
    strcpy(doc_query,"GET_DOCUMENT ");
    strcat(doc_query,hash);
    strcat(doc_query,"\r\n");
-   //printf("QUERY: %s",doc_query);
+
+   //debug
+   printf("STARTED DOWNLOAD (QUERY: %s)\n",doc_query);
 
    dexp_send(cpeer,doc_query,strlen(doc_query));
    
@@ -782,7 +784,7 @@ int fetch_doc(peer *cpeer,char* hash) {
           }
 
          //debug
-         //printf("HEADER_LEN:%d | FPART_LEN:%d\n",header_len,fpart_len);
+         printf("HEADER_LEN:%d | FPART_LEN:%d\n",header_len,fpart_len);
 
          if (fpart_len> 0) {
             memcpy(file_part,head_end_ptr+2,sizeof(char) * fpart_len);    
@@ -793,7 +795,7 @@ int fetch_doc(peer *cpeer,char* hash) {
          }
 
          //debug
-         //printf("IO_BUFFER: %s\n",io_buffer);
+         printf("IO_BUFFER: %s\n",io_buffer);
 
          
          doc_params = explode(io_buffer,':');
