@@ -781,12 +781,20 @@ int fetch_doc(peer *cpeer,char* hash) {
    setZeroN(io_buffer,STR_BIG_S);
    
    if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S * sizeof(char))) > 0 ) {
-     
 
-      if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
+	   
+	  printf("IOBUFFER_DBG:%s\n",io_buffer);
 
-          printf("IOBUFFER_DBG:%s\n";io_buffer);
-		  
+	   //DIRTY HACK TO AVOID shitty messages
+       if (strstr(io_buffer,"FIN") == io_buffer ) {
+
+		   setZeroN(io_buffer,STR_BIG_S);
+		   len = dexp_recv(cpeer,io_buffer,STR_BIG_S * sizeof(char));
+		   	  
+	   }
+	   
+      else if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
+
           //debug
           printf("RECV STEP 1 OK\n");
 		  
@@ -881,8 +889,8 @@ int fetch_doc(peer *cpeer,char* hash) {
          dexp_send(cpeer,DEXP_FIN,sizeof(DEXP_FIN));
 
      
-       }
-
+      }
+	   
     
    }
 
