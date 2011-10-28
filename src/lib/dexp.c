@@ -276,6 +276,7 @@ int announce(char *hash,int mode) {
      
       if (conf0.peers[i].socknum > 0 && conf0.peers[i].lock != 1 ) {
 
+		 conf0.peers[i].lock = 1;
          dexp_send(&(conf0.peers[i]),io_buffer,strlen(io_buffer));
 
       }
@@ -777,7 +778,6 @@ int fetch_doc(peer *cpeer,char* hash) {
    file_part = (void*) malloc(STR_BIG_S*sizeof(char));
    setZeroN((char*)file_part,STR_BIG_S);
 
-
    setZeroN(io_buffer,STR_BIG_S);
    
    if ( (len = dexp_recv(cpeer,io_buffer,STR_BIG_S * sizeof(char))) > 0 ) {
@@ -785,6 +785,9 @@ int fetch_doc(peer *cpeer,char* hash) {
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
 
+          //debug
+          printf("RECV STEP 1 OK\n");
+		  
           head_end_ptr = strstr(io_buffer,"\r\n");
           if (head_end_ptr != NULL) {
             header_len = (head_end_ptr - io_buffer) + 2;
