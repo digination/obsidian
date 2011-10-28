@@ -358,11 +358,16 @@ int sendDoc(peer* cpeer,char *hash) {
 
      strcat(send_buffer,"401 CANNOT OPEN FILE FOR READING\r\n");
      dexp_send(cpeer,send_buffer,strlen(send_buffer));
+	 //debug
+	 printf("CANNOT OPEN FILE FOR READING: %s\n",file_path);
      return -2;
 
-
+	   
    }
 
+   //debug
+   printf("SEND STEP 1 OK\n");
+	
    fseek(fh, 0L, SEEK_END);
    file_length = ftell(fh);
    fseek(fh,0L,0);
@@ -376,6 +381,9 @@ int sendDoc(peer* cpeer,char *hash) {
    strncat(send_buffer,"\r\n",sizeof(send_buffer) - strlen(send_buffer));
 
    dexp_send(cpeer,send_buffer,strlen(send_buffer));
+
+   //debug
+   printf("SEND STEP 2 OK\n");
 
    while( ( i = fread( file_buffer, 1, sizeof( file_buffer ), fh ) ) > 0 ) {
 
