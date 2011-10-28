@@ -785,6 +785,8 @@ int fetch_doc(peer *cpeer,char* hash) {
 
       if (strstr(io_buffer,"DOCUMENT") == io_buffer ) {
 
+          printf("IOBUFFER_DBG:%s\n";io_buffer);
+		  
           //debug
           printf("RECV STEP 1 OK\n");
 		  
