@@ -530,6 +530,8 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
      else if (strstr( str0.strlist[0] , DEXP_FIN ) == str0.strlist[0] ) {
 
        cpeer->lock = 0;
+       prinf("FIN received, unlocking connection !\n");
+		 
       
     }
 
@@ -679,7 +681,6 @@ hash_queue* register_hashes(char *cat_str,hash_queue* hq0,int* nb_hq) {
    int i,j,k;
    int found =0;
    stringlist rcvhashes;
-
    int nb_newhashes = 0;
 
    rcvhashes = explode(cat_str,'\n');
