@@ -9,6 +9,7 @@
 #include "config.h"
 #include "common.h"
 #include <stdint.h>
+#include <sys/epoll.h>
 
 
 //Queries
@@ -63,8 +64,10 @@
 
 int has_document(char*,char**,int);
 int parse_cmd(char*,char**,int) ;
-void *session_thread_serv(void *);
-void *session_thread_cli(void *);
+
+void *dexp_cli_ioth(void *);
+void *dexp_serv_ioth(void *);
+
 
 void* keepalive_thread();
 
@@ -78,6 +81,7 @@ int parse_capacity(peer*,char*);
 int negotiate(peer*);
 int receiveNego(peer*);
 int createPeer(char*,int,uint8_t);
+int dexp_input_handler(peer*);
 
 #endif
 

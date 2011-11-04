@@ -27,6 +27,9 @@ add_executable(
         src/lib/filter.h
         src/lib/filter.c
         src/lib/statinfos.h
+        src/lib/dennis.h
+        src/lib/dennis.c
+
 )
 
 

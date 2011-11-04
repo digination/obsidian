@@ -439,6 +439,13 @@ int process_announce(peer *cpeer,char*hash) {
 
 
 
+int dexp_input_handler(peer* cpeer) {
+
+   char io_buffer[STR_BIG_S];
+   dexp_recv(cpeer,io_buffer,sizeof(io_buffer));
+
+}
+
 
 int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
@@ -631,21 +638,56 @@ char* receive_catalog(peer* cpeer) {
 
 
 
-void *session_thread_serv(void * p_input) {
+void *dexp_serv_ioth(void * p_input) {
 
   peer* current_peer = (peer*) p_input;
   void* io_buffer;
   int i;
-  pthread_detach(pthread_self());
+  int epoll_set;
+  int nbfds;
+  struct epoll_event ev ,*events;
 
+ 
+  pthread_detach(pthread_self());
   io_buffer = (void*) malloc(STR_BIG_S*sizeof(char));
+
+  //initialize the epoll on the socket fd
+  ev.events = EPOLLIN | EPOLLPRI;
+  epoll_set = epoll_create(EPOLL_QUEUE_LEN);
+  ev.data.fd = current_peer->socknum;
+  epoll_ctl(epoll_set,EPOLL_CTL_ADD,current_peer->socknum,&ev);
+
 
   //initialize announce_queue
   current_peer->announce_queue = (char**) malloc(1*sizeof(char*));
   current_peer->an_queuesize = 0;
 
+  //starts negotiation with client
   sendCapa(current_peer);
   receiveNego(current_peer);
+
+  //puts the socket in non-blocking state
+  setnonblocking(current_peer->socknum);
+
+  while(current_peer->socknum != -1) {
+
+      int nbfds = epoll_wait(epoll_set, events,
+                             MAX_EPOLL_EVENTS_PER_RUN,
+                             EPOLL_TIMEOUT);
+
+      for (i=0;i<nbfds;i++) {
+          
+          int fd = events[i].data.fd;
+          dexp_input_handler(current_peer);
+      }    
+
+  }
+  
+
+
+
+  
+ 
 
   while(current_peer->socknum != -1) {
 
@@ -911,7 +953,7 @@ void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
 }
 
 
-void *session_thread_cli(void * p_input) {
+void *dexp_cli_ioth(void * p_input) {
 
   peer* current_peer = (peer*) p_input;
   char io_buffer[STR_BIG_S];

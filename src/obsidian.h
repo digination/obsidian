@@ -7,11 +7,13 @@
 #include <openssl/sha.h>
 #include "lib/common.h"
 #include "lib/dexp.h"
+#include "lib/dennis.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <getopt.h>
 
 int connectAll();
 int try_reconnect();
@@ -19,6 +21,3 @@ int load_catalog(char*);
 int isPeer(char*,int);
 void* reconnect_loop();
 void* listen_v6();
-
-
-

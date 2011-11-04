@@ -2,7 +2,7 @@
 
 PREFIX="/usr/local/obsidian"
 TMP_SSLCONF="$PREFIX/etc/ssl_tmp"
-SSLCONF="$PREFIX/etc/ssl"
+SSLCONF="$PREFIX/etc/tls/server"
 
 
 if [ ! -d $SSLCONF ] ; then

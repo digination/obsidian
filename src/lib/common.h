@@ -6,6 +6,11 @@
 #define STR_SMALL_S 255
 #define STR_TINY_S 128
 
+#define EPOLL_TIMEOUT 100
+#define MAX_EPOLL_EVENTS_PER_RUN 1
+#define EPOLL_QUEUE_LEN 10
+
+
 
 typedef struct catalog {
 

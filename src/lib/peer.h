@@ -24,8 +24,8 @@
       SSL* ssl;
       uint8_t has_catalog;
       uint8_t sync_mode;
-	   
-      pthread_t thread;
+      pthread_t ioth;
+      pthread_t worker;
       uint8_t lock;
       char **announce_queue;
       int an_queuesize;

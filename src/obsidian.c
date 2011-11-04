@@ -75,7 +75,7 @@ int connectAll() {
 
             printf("link established with peer %s !\n" , conf0.peers[i].host); 
             conf0.peers[i].socknum = socknum;
-            pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
+            pthread_create(&conf0.peers[i].ioth,NULL,dexp_cli_ioth,(void*)&conf0.peers[i]);
          }
 
 
@@ -93,7 +93,7 @@ int connectAll() {
 
          printf("link established with peer %s !\n" , conf0.peers[i].host); 
          conf0.peers[i].socknum = socknum;
-         pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
+         pthread_create(&conf0.peers[i].ioth,NULL,dexp_cli_ioth,(void*)&conf0.peers[i]);
       }
 
   }  
@@ -125,7 +125,7 @@ int try_reconnect() {
          else { 
             printf("link established with peer %s !\n" , conf0.peers[i].host);
             conf0.peers[i].socknum = socknum;
-            pthread_create(&conf0.peers[i].thread,NULL,session_thread_cli,(void*)&conf0.peers[i]);
+            pthread_create(&conf0.peers[i].ioth,NULL,dexp_cli_ioth,(void*)&conf0.peers[i]);
          }
 
      }
@@ -269,15 +269,15 @@ int main(int argc, char** argv) {
 
 
    extern dexpd_config conf0;
-
-
    int socknum = 0;
    int sock_id = 0;
 
    int wd = 0;
    int notify_fd = 0;
+   int option_index = 0;
 
    char *peer_str;
+   char c;
    int peer_num;
 
    pthread_t notify_th;
@@ -286,8 +286,30 @@ int main(int argc, char** argv) {
    pthread_t anflush_th;
 
    struct sockaddr_in peer_addr;
-   socklen_t addr_len = sizeof(peer_addr);
 
+   static struct option long_options[] = {
+      {"dennis",no_argument,0, 'T'},
+      {0, 0, 0, 0}
+   };
+
+   c = getopt_long (argc, argv, "T",long_options, &option_index);
+
+   switch(c) {
+
+      case 'T':
+      
+         dennis_tribute();
+         break;
+         
+      default:
+      
+         break;
+
+   }
+
+
+
+   socklen_t addr_len = sizeof(peer_addr);
   
    printf ("\n");
 
@@ -374,7 +396,7 @@ int main(int argc, char** argv) {
          else {
 			 
              conf0.peers[peer_num].ssl = NULL;
-             pthread_create(&conf0.peers[peer_num].thread,NULL,session_thread_serv,(void*)&conf0.peers[peer_num]);
+             pthread_create(&conf0.peers[peer_num].ioth,NULL,dexp_serv_ioth,(void*)&conf0.peers[peer_num]);
   
 
          }
@@ -438,7 +460,7 @@ void* listen_v6() {
          else {
 			 
              conf0.peers[peer_num].ssl = NULL;
-             pthread_create(&conf0.peers[peer_num].thread,NULL,session_thread_serv,(void*)&conf0.peers[peer_num]);
+             pthread_create(&conf0.peers[peer_num].ioth,NULL,dexp_serv_ioth,(void*)&conf0.peers[peer_num]);
   
 
          }

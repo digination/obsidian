@@ -2,7 +2,7 @@
 #define FSEVENTS_H
 
 #include <sys/types.h>
-#include <linux/inotify.h>
+#include <sys/inotify.h>
 #include <sys/select.h>
 #include <stdio.h>
 #include <openssl/sha.h>

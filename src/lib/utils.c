@@ -185,3 +185,12 @@ char** unqueue(char** strlist,int queue_size,int shift) {
    return res;
 
 }
+
+
+int setnonblocking(int fd) {
+
+   int sock_status;
+   sock_status = fcntl(fd, F_GETFL);
+   sock_status = fcntl(fd, F_SETFL, sock_status | O_NONBLOCK);
+
+}
