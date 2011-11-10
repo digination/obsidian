@@ -18,6 +18,7 @@ typedef struct stringlist {
 
 
 stringlist explode(char*,char);
+stringlist explode_ex(char*,const char*);
 int strlfree(stringlist *);
 int setZero(char *);
 int setZeroN(char *,int);

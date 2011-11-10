@@ -61,6 +61,69 @@ stringlist explode(char *str, char separator) {
 }
 
 
+
+stringlist explode_ex(char *str, const char* delim) {
+
+  stringlist res;
+  char* token;
+
+  if (str == NULL) { 
+ 
+     res.strlist = NULL;
+     res.nb_strings = 0;
+     return res;
+  }
+ 
+   int  nbstr = 1;
+   int  len;
+   int  from = 0;
+   int  i;
+   int  j;
+   
+   res.strlist = (char **) malloc(sizeof (char *));
+   len = strlen(str);
+
+   //case where the is a singleton
+   if (strstr(str,delim) == NULL ) {
+
+        res.strlist[0] = (char*) malloc(strlen(str)*sizeof(char) +1);
+        strncpy(res.strlist[0],str,strlen(str)*sizeof(char));
+        res.nb_strings = 1;
+        return res;
+   }     
+
+   token = strtok(str,delim);
+   res.strlist[0] = (char*) malloc(strlen(token)*sizeof(char) +1);
+   strncpy(res.strlist[0],token,strlen(token)*sizeof(char));
+   res.nb_strings = 1;
+   
+   while( (token = strtok(NULL,delim)) != NULL  ) {
+
+      res.nb_strings++;
+      res.strlist = (char**) realloc(res.strlist,(res.nb_strings+1) * sizeof(char*) );      
+      res.strlist[res.nb_strings-1] = (char*) malloc( strlen(token) * sizeof(char) +1 );
+      strncpy(res.strlist[res.nb_strings-1],token,strlen(token));
+      
+   }
+    
+   return res;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int strlfree(stringlist *str0) {
 
    int i = 0;
@@ -185,6 +248,10 @@ char** unqueue(char** strlist,int queue_size,int shift) {
    return res;
 
 }
+
+
+
+
 
 
 int setnonblocking(int fd) {

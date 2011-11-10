@@ -82,6 +82,10 @@ int negotiate(peer*);
 int receiveNego(peer*);
 int createPeer(char*,int,uint8_t);
 int dexp_input_handler(peer*);
+dexp_queue* dexp_enqueue(dexp_queue*,dexp_queue,int);
+int dexp_add_output(peer*,void*);
+int dexp_take_action(int,peer*,void*);
+
 
 #endif
 

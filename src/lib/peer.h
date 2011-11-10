@@ -9,6 +9,18 @@
    #define SYNC_NOSYNC 0x02
 
 
+
+   typedef struct dexp_queue {
+
+       int dexp_cmd;
+       char arg1[STR_REG_S];
+       char arg2[STR_REG_S];
+       char *data;
+       int data_len;
+       
+   } dexp_queue;
+
+
    typedef struct peer_capacity {
    
      char proto[5];
@@ -26,7 +38,10 @@
       uint8_t sync_mode;
       pthread_t ioth;
       pthread_t worker;
-      uint8_t lock;
+      dexp_queue *in_queue;
+      dexp_queue *out_queue;
+      int in_queue_n;
+      int out_queue_n;
       char **announce_queue;
       int an_queuesize;
       peer_capacity capacity;

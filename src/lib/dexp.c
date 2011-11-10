@@ -146,6 +146,7 @@ int sendInfos (peer* cpeer) {
 
 int sendCapa (peer *cpeer) {
 
+
    extern dexpd_config conf0;
     
    char *capacity = (char*) malloc ( STR_BIG_S* sizeof(char) );
@@ -160,7 +161,6 @@ int sendCapa (peer *cpeer) {
    else strncpy(tls_vv,"FALSE",5*sizeof(char));
 
    sprintf(capacity,"Obsidian DEXP\nNODE_NAME:%s\nPROTOCOL_VER:%s\nHAS_TLS:%s",conf0.node_name,DEXP_VERSIONS_TAG,tls_vv);
-
    dexp_send(cpeer,capacity,strlen(capacity)) ;
    
    free(capacity);
@@ -244,6 +244,8 @@ int announce(char *hash,int mode) {
 
    setZeroN(io_buffer,STR_BIG_S);
    setZeroN(mode_str,STR_SMALL_S);
+   dexp_queue q0;
+
 
    switch(mode) {
 
@@ -272,35 +274,17 @@ int announce(char *hash,int mode) {
    strncat(io_buffer,hash,STR_BIG_S*sizeof(char) - strlen(io_buffer) );
    strncat(io_buffer,"\r\n",STR_BIG_S*sizeof(char) - strlen(io_buffer) );
 
+   //malloc+memcpy() ?
+   q0.data = io_buffer;
+
    for (i=0;i<conf0.nb_peers;i++) {
      
-      if (conf0.peers[i].socknum > 0 && conf0.peers[i].lock != 1 ) {
+      if (conf0.peers[i].socknum > 0) {
 
-		 conf0.peers[i].lock = 1;
-         dexp_send(&(conf0.peers[i]),io_buffer,strlen(io_buffer));
+         conf0.peers[i].in_queue = dexp_enqueue(conf0.peers[i].in_queue,q0,conf0.peers[i].in_queue_n+1);
+         
 
       }
-
-      else if ( conf0.peers[i].lock == 1) {
-
-         printf("Notice: Peer connection is busy, queuing Announce %s\n",hash);
-      
-         qpos = conf0.peers[i].an_queuesize;
-         conf0.peers[i].announce_queue[qpos] = (char*) malloc(65*sizeof(char));
-         setZeroN(conf0.peers[i].announce_queue[qpos],65);
-         
-         strncpy(conf0.peers[i].announce_queue[qpos],hash,64*sizeof(char));
-
-         conf0.peers[i].an_queuesize++;
-         
-         conf0.peers[i].announce_queue = (char**) realloc(
-         conf0.peers[i].announce_queue,
-         (conf0.peers[i].an_queuesize +1)*sizeof(char*));
-                        
-      }
-
-      
-
 
    }
 
@@ -422,10 +406,8 @@ int process_announce(peer *cpeer,char*hash) {
    }
    
    if (! found ) {
-
-      cpeer->lock= 1;
+   
       fetch_doc(cpeer,hash);
-      cpeer->lock = 0;
       return 0;
       
 
@@ -441,13 +423,48 @@ int process_announce(peer *cpeer,char*hash) {
 
 int dexp_input_handler(peer* cpeer) {
 
-   char io_buffer[STR_BIG_S];
-   dexp_recv(cpeer,io_buffer,sizeof(io_buffer));
+   void *io_buffer;
+   char *io_buffer_s;
+   stringlist strl1;
+   int i;
+   int len;
+   dexp_queue q0; 
+   io_buffer = malloc(STR_BIG_S * sizeof(char));
+   setZeroN(io_buffer,STR_BIG_S);
+   len = dexp_recv(cpeer,io_buffer,STR_BIG_S);
+   io_buffer_s = (char*) io_buffer;
+   strl1 = explode_ex(io_buffer_s,"\r\n");
+
+   for (i=0;i<strl1.nb_strings;i++) {
+
+      //malloc+memcpy() ?
+      q0.data = strl1.strlist[i];
+      
+      //debug
+      printf("queueing \"%s\"\n",strl1.strlist[i]);
+       cpeer->in_queue = dexp_enqueue(cpeer->in_queue,q0,cpeer->in_queue_n+1);
+      (cpeer->in_queue_n)++;
+
+   }
 
 }
 
 
-int take_action(int socknum,peer* cpeer,void* io_buffer) {
+
+int dexp_add_output(peer *cpeer,void* outp) {
+
+   dexp_queue q0;
+
+   //pt etre malloc() + memcpy ici ! (pas sur que outp soit conservé en memoire )
+   q0.data = outp;
+
+   cpeer->out_queue = dexp_enqueue(cpeer->out_queue,q0,cpeer->out_queue_n + 1   );
+  (cpeer->out_queue_n)++;
+
+}
+
+
+int dexp_take_action(int socknum,peer* cpeer,void* io_buffer) {
 
   char *input = (char*) io_buffer;
 
@@ -530,7 +547,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
             return -2;
        } 
 
-       cpeer->lock = 1;
        sendDoc(cpeer,trim(str0.strlist[1]));
    
     }
@@ -545,7 +561,6 @@ int take_action(int socknum,peer* cpeer,void* io_buffer) {
 
      else if (strstr( str0.strlist[0] , DEXP_FIN ) == str0.strlist[0] ) {
 
-       cpeer->lock = 0;
        printf("FIN received, unlocking connection !\n");
 		 
       
@@ -645,7 +660,7 @@ void *dexp_serv_ioth(void * p_input) {
   int i;
   int epoll_set;
   int nbfds;
-  struct epoll_event ev ,*events;
+  struct epoll_event ev ,events[EPOLL_MAX_EVT];
 
  
   pthread_detach(pthread_self());
@@ -655,7 +670,11 @@ void *dexp_serv_ioth(void * p_input) {
   ev.events = EPOLLIN | EPOLLPRI;
   epoll_set = epoll_create(EPOLL_QUEUE_LEN);
   ev.data.fd = current_peer->socknum;
-  epoll_ctl(epoll_set,EPOLL_CTL_ADD,current_peer->socknum,&ev);
+  if (epoll_ctl(epoll_set,EPOLL_CTL_ADD,current_peer->socknum,&ev)) {
+
+     fprintf(stderr,"Error: cannot add socket to epoll() fd pool\n");
+
+  }
 
 
   //initialize announce_queue
@@ -671,53 +690,34 @@ void *dexp_serv_ioth(void * p_input) {
 
   while(current_peer->socknum != -1) {
 
-      int nbfds = epoll_wait(epoll_set, events,
+      nbfds = epoll_wait(epoll_set, events,
                              MAX_EPOLL_EVENTS_PER_RUN,
                              EPOLL_TIMEOUT);
 
       for (i=0;i<nbfds;i++) {
-          
-          int fd = events[i].data.fd;
-          dexp_input_handler(current_peer);
+
+          if (events[i].data.fd == current_peer->socknum) {
+             int fd = events[i].data.fd;
+             dexp_input_handler(current_peer);
+         }
       }    
 
+
+      if (current_peer->in_queue_n > 0) {
+
+         //dexp_process_queue(current_peer);
+
+      }
+
+      
+      if ( current_peer->out_queue_n > 0 ) {
+
+         
+
+         
+      }
+     
   }
-  
-
-
-
-  
- 
-
-  while(current_peer->socknum != -1) {
-
-     if ( dexp_recv(current_peer,io_buffer,STR_BIG_S*sizeof(char)) > 0 ) {
-
-        //printf("%s\n",(char*) io_buffer);
-
-        take_action(current_peer->socknum,current_peer,io_buffer);
-        setZeroN((char*)io_buffer,STR_BIG_S);
-
-     }
-
-
-	 /*
-     if (current_peer->mode != DEXPMODE_BUSY && ! current_peer->has_catalog) {
-
-        printf ("GETCAT!\n");
-
-        current_peer->mode = DEXPMODE_BUSY;
-        dexp_send(current_peer,DEXP_GETCATALOG,sizeof(DEXP_GETCATALOG));
-        receive_catalog(current_peer);
-        current_peer->mode = DEXPMODE_IDLE;
-
-     }
-	 */
-
-
-  }
-
-
 
 
 }
@@ -745,7 +745,6 @@ hash_queue* register_hashes(char *cat_str,hash_queue* hq0,int* nb_hq) {
           if ( strcmp( cat0[j].hash, rcvhashes.strlist[i]) == 0 ) {
 
              found = 1;
-             //printf("%d FOUND HASH: %s\n",i,rcvhashes.strlist[i]);
              break;
 
           }
@@ -755,17 +754,14 @@ hash_queue* register_hashes(char *cat_str,hash_queue* hq0,int* nb_hq) {
 
       if (!found) {
 
-         //printf("ADDING HASH %s TO QUEUE\n",rcvhashes.strlist[i]);
 
          strncpy(hq0[*nb_hq].hash,(char*) rcvhashes.strlist[i],sizeof(hq0[*nb_hq].hash) );
-
          *nb_hq = *nb_hq + 1;
          nb_newhashes+=1;
 
          hq0 = (hash_queue*) realloc(hq0, (*nb_hq+1) * sizeof(hash_queue)) ;         
 
       }
-
 
    }
 
@@ -945,9 +941,7 @@ void fetch_docs(peer *cpeer,hash_queue* hq0,int* nb_hq) {
    
    for (i=0;i<*nb_hq;i++) {
 
-      cpeer->lock=1;
       fetch_doc(cpeer,hq0[i].hash);
-      cpeer->lock=0;
    }
 
 }
@@ -1035,11 +1029,11 @@ void *dexp_cli_ioth(void * p_input) {
          switch(mode) {
 
             case DEXPMODE_IDLE:
-               take_action(current_peer->socknum,current_peer,io_buffer);
+               dexp_take_action(current_peer->socknum,current_peer,io_buffer);
                break;
              
             default:
-               take_action(current_peer->socknum,current_peer,io_buffer);
+               dexp_take_action(current_peer->socknum,current_peer,io_buffer);
                break;           
          }
 
@@ -1069,4 +1063,31 @@ int createPeer(char* host,int socknum,uint8_t isPublic) {
   conf0.peers[cpos].ssl = NULL; 
 
  
+}
+
+
+dexp_queue* dexp_unqueue(dexp_queue* dqueue,int queue_size,int shift) {
+
+   int i,j,k;
+   dexp_queue* res = (dexp_queue*) malloc((queue_size-shift) * sizeof(dexp_queue) ) ; 
+    
+   for (i=shift;i<queue_size;i++) {
+   
+      res[i - shift] = dqueue[i];
+
+   }
+   
+   free(dqueue);
+   return res;
+
+}
+
+dexp_queue* dexp_enqueue(dexp_queue* dqueue,dexp_queue element,int queue_size) {
+
+  dexp_queue* res = (dexp_queue*) realloc(dqueue,(queue_size+1) * sizeof(dexp_queue) ) ; 
+  memcpy(&(res[queue_size-1]),&element,sizeof(dexp_queue));
+
+  return res;
+
+
 }
